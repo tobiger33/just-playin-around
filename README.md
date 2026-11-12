@@ -18,5 +18,18 @@ Kurve, während sich das Symbol sanft horizontal bewegt und räumlich neigt.
 
 ---
 
+### 02 · Four Petals — 360°
+
+Dieselbe Blüte dreht sich langsam und gleichmäßig einmal um ihre senkrechte
+Achse (Y-Achse) und zeigt dabei eine dezente räumliche Tiefe.
+
+<p align="center">
+  <img src="assets/four-petals-360.gif" width="180" alt="Vierblättriges Ladesymbol bei einer langsamen 360-Grad-Drehung um die Y-Achse" />
+</p>
+
+[Im Browser ausprobieren](loading-indicator-360.html)
+
+---
+
 Neue Experimente bekommen jeweils eine eigene HTML-Datei und eine passende
 GIF-Vorschau unter `assets/`.
