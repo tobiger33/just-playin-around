@@ -69,9 +69,9 @@ Raumdiagonale.
 
 ### 05 · Four Petals — Octahedral Seven 360°
 
-Vier Ebenen entlang der Raumdiagonalen ergänzen das orthogonale Dreierkreuz.
-Alle sieben Ebenen bleiben starr gekoppelt und drehen sich gemeinsam um eine
-Raumdiagonale.
+Vier zusätzliche Ebenen stehen jeweils senkrecht auf einer der vier
+Körperdiagonalen und ergänzen so das orthogonale Dreierkreuz. Alle sieben Ebenen
+bleiben starr gekoppelt und drehen sich gemeinsam um eine Raumdiagonale.
 
 <p align="center">
   <img src="assets/four-petals-octahedral-360.gif" width="160" alt="Sieben symmetrisch angeordnete vierblättrige Ebenen mit Konturen und blauen Lichtspuren" />
