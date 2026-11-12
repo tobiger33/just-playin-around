@@ -31,5 +31,18 @@ wandert ein Lichtstrich über die Kontur und betont ihre räumliche Tiefe.
 
 ---
 
+### 03 · Four Petals — Crossed 360°
+
+Zwei Blütenebenen stehen im rechten Winkel zueinander und drehen sich gemeinsam
+um 360°. Auf jeder Ebene wandert ein eigener, leicht versetzter Lichtstrich.
+
+<p align="center">
+  <img src="assets/four-petals-crossed-360.gif" width="180" alt="Zwei rechtwinklig gekreuzte vierblättrige Ebenen drehen sich langsam und tragen je einen wandernden Lichtstrich" />
+</p>
+
+[Im Browser ausprobieren](loading-indicator-crossed-360.html)
+
+---
+
 Neue Experimente bekommen jeweils eine eigene HTML-Datei und eine passende
 GIF-Vorschau unter `assets/`.
