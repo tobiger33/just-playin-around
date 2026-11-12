@@ -53,6 +53,8 @@
         stroke: #536fc4;
         stroke-width: 1.8;
         stroke-dasharray: 14 86;
+        stroke-dashoffset: 100;
+        animation: flow 4s linear infinite;
       }
 
       .sr-only {
@@ -73,10 +75,21 @@
         }
       }
 
+      @keyframes flow {
+        to {
+          stroke-dashoffset: 0;
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
         .spinner {
           animation: none;
           transform: none;
+        }
+
+        .spinner__trace {
+          animation: none;
+          stroke-dashoffset: 0;
         }
       }
     </style>

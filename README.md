@@ -20,8 +20,8 @@ Kurve, während sich das Symbol sanft horizontal bewegt und räumlich neigt.
 
 ### 02 · Four Petals — 360°
 
-Dieselbe Blüte dreht sich langsam und gleichmäßig einmal um ihre senkrechte
-Achse (Y-Achse) und zeigt dabei eine dezente räumliche Tiefe.
+Dieselbe Blüte dreht sich langsam um ihre senkrechte Achse (Y-Achse). Dabei
+wandert ein Lichtstrich über die Kontur und betont ihre räumliche Tiefe.
 
 <p align="center">
   <img src="assets/four-petals-360.gif" width="180" alt="Vierblättriges Ladesymbol bei einer langsamen 360-Grad-Drehung um die Y-Achse" />
