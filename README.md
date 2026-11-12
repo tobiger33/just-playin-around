@@ -44,5 +44,19 @@ um 360°. Auf jeder Ebene wandert ein eigener, leicht versetzter Lichtstrich.
 
 ---
 
+### 04 · Four Petals — Orbital Triad 360°
+
+Drei Blütenebenen stehen im rechten Winkel zueinander und vervollständigen
+das Raumkreuz. Sie bleiben starr zueinander und drehen sich gemeinsam um die
+Raumdiagonale.
+
+<p align="center">
+  <img src="assets/four-petals-triad-360.gif" width="180" alt="Drei rechtwinklig angeordnete vierblättrige Ebenen rotieren gemeinsam um die Raumdiagonale" />
+</p>
+
+[Im Browser ausprobieren](loading-indicator-triad-360.html)
+
+---
+
 Neue Experimente bekommen jeweils eine eigene HTML-Datei und eine passende
 GIF-Vorschau unter `assets/`.
