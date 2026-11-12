@@ -8,7 +8,7 @@ eigenständige HTML-Datei und mit animierter Vorschau.
 ### 01 · Four Petals
 
 Vier weiche Schleifen formen eine Blüte. Ein einzelner Lichtstrich folgt der
-Kurve in einer ruhigen Endlosschleife.
+Kurve, während sich das Symbol sanft horizontal bewegt und räumlich neigt.
 
 <p align="center">
   <img src="assets/four-petals.gif" width="180" alt="Animiertes Ladesymbol aus vier organischen Schleifen" />

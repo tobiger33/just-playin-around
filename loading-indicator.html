@@ -30,6 +30,8 @@
       .spinner {
         width: 3rem;
         height: 3rem;
+        transform-origin: center;
+        animation: drift 6s cubic-bezier(0.42, 0, 0.58, 1) infinite;
       }
 
       .spinner__track,
@@ -71,7 +73,21 @@
         }
       }
 
+      @keyframes drift {
+        0%, 100% {
+          transform: perspective(300px) rotateY(-14deg) translateX(-4px);
+        }
+        50% {
+          transform: perspective(300px) rotateY(14deg) translateX(4px);
+        }
+      }
+
       @media (prefers-reduced-motion: reduce) {
+        .spinner {
+          animation: none;
+          transform: none;
+        }
+
         .spinner__trace {
           animation: none;
           stroke-dasharray: 14 86;
