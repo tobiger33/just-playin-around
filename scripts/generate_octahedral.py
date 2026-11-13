@@ -140,7 +140,7 @@ def trace_segment(points, lengths, phase, fraction):
     return section(points, lengths, start, total) + section(points, lengths, 0, end - total)[1:]
 
 
-def plane_bases():
+def plane_bases(include_face_diagonals=False):
     normals = [
         (0, 0, 1),
         (1, 0, 0),
@@ -150,6 +150,17 @@ def plane_bases():
         (-1, 1, -1),
         (-1, -1, 1),
     ]
+    if include_face_diagonals:
+        normals.extend(
+            [
+                (1, 1, 0),
+                (1, -1, 0),
+                (1, 0, 1),
+                (1, 0, -1),
+                (0, 1, 1),
+                (0, 1, -1),
+            ]
+        )
     bases = []
     for normal in normals:
         n = unit(normal)
@@ -170,7 +181,7 @@ def rotate(point, angle):
     )
 
 
-def render(size, time, tracks=True):
+def render(size, time, tracks=True, include_face_diagonals=False):
     supersample = 2
     canvas_size = size * supersample
     unit_scale = canvas_size / 48
@@ -178,7 +189,7 @@ def render(size, time, tracks=True):
     focal = camera
     center = canvas_size / 2
     angle = time * math.tau / 8
-    bases = plane_bases()
+    bases = plane_bases(include_face_diagonals)
     path_points, path_lengths = sample_path(parse_path(PATH))
     rendered = Image.new("RGB", (canvas_size, canvas_size), BACKGROUND)
     draw = ImageDraw.Draw(rendered)
@@ -199,7 +210,13 @@ def render(size, time, tracks=True):
     for layer, basis in enumerate(bases):
         projected = [project(point, basis) for point in path_points]
         projected_planes.append(projected)
-        phase = time / 4 + (0 if layer < 3 else 0.25)
+        if layer < 3:
+            phase_offset = 0
+        elif layer < 7:
+            phase_offset = 0.25
+        else:
+            phase_offset = 0.5
+        phase = time / 4 + phase_offset
         trace = trace_segment(path_points, path_lengths, phase, 0.075)
         trace_planes.append([project(point, basis) for point in trace])
 
@@ -238,20 +255,25 @@ def save_gif(frames, path):
     )
 
 
-def main():
+def generate_assets(stem, include_face_diagonals=False):
     ASSETS.mkdir(exist_ok=True)
     gif_frames = []
     lines_frames = []
     for frame in range(160):
         time = frame * 0.05
-        gif_frames.append(render(240, time))
-        lines_frames.append(render(240, time, tracks=False))
-    save_gif(gif_frames, ASSETS / "four-petals-octahedral-360.gif")
-    save_gif(lines_frames, ASSETS / "four-petals-octahedral-360-lines-only.gif")
+        gif_frames.append(render(240, time, include_face_diagonals=include_face_diagonals))
+        lines_frames.append(
+            render(240, time, tracks=False, include_face_diagonals=include_face_diagonals)
+        )
+    save_gif(gif_frames, ASSETS / f"{stem}-360.gif")
+    save_gif(lines_frames, ASSETS / f"{stem}-360-lines-only.gif")
 
-    webp_frames = [render(128, frame * 0.02) for frame in range(400)]
+    webp_frames = [
+        render(128, frame * 0.02, include_face_diagonals=include_face_diagonals)
+        for frame in range(400)
+    ]
     webp_frames[0].save(
-        ASSETS / "four-petals-octahedral-360.webp",
+        ASSETS / f"{stem}-360.webp",
         save_all=True,
         append_images=webp_frames[1:],
         duration=20,
@@ -259,7 +281,14 @@ def main():
         quality=90,
         method=6,
     )
-    render(128, 0).save(ASSETS / "four-petals-octahedral-static.png")
+    render(128, 0, include_face_diagonals=include_face_diagonals).save(
+        ASSETS / f"{stem}-static.png"
+    )
+
+
+def main():
+    generate_assets("four-petals-octahedral")
+    generate_assets("four-petals-cubic", include_face_diagonals=True)
 
 
 if __name__ == "__main__":

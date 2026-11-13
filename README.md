@@ -1,87 +1,97 @@
-# just playin' around
+# Four Petals — Loading Indicators
 
-Eine kleine, wachsende Sammlung verspielter Ladesymbole — jedes Experiment als
-eigenständige HTML-Datei und mit zwei animierten Vorschauen: links das Symbol
-mit Kontur, rechts nur die bewegten blauen Linien.
+A collection of minimalist loading indicators. Each design has a standalone
+HTML demo and two animated previews: the complete outline on the left and only
+the moving blue traces on the right.
 
-## Galerie
+## Gallery
 
 ### 01 · Four Petals
 
-Vier weiche Schleifen formen eine Blüte. Das Symbol bleibt ruhig in der Ebene,
-während ein einzelner Lichtstrich die Kontur entlangwandert.
+Four soft loops form a flower. The shape stays still while a single light trace
+moves along its outline.
 
 <p align="center">
-  <img src="assets/four-petals.gif" width="160" alt="Vierblättriges Ladesymbol mit grauer Kontur und blauer Lichtspur" />
+  <img src="assets/four-petals.gif" width="160" alt="Four-petal loading indicator with a gray outline and a moving blue trace" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-lines-only.gif" width="160" alt="Nur die bewegte blaue Lichtspur des vierblättrigen Symbols" />
+  <img src="assets/four-petals-lines-only.gif" width="160" alt="Only the moving blue trace of the four-petal design" />
 </p>
 
-[Im Browser ausprobieren](loading-indicator.html)
+[View in browser](loading-indicator.html)
 
 ---
 
 ### 02 · Four Petals — 360°
 
-Dieselbe Blüte dreht sich langsam um ihre senkrechte Achse (Y-Achse). Dabei
-wandert ein Lichtstrich über die Kontur und betont ihre räumliche Tiefe.
+The flower slowly rotates around its vertical (Y) axis. A light trace travels
+along the outline to emphasize its depth.
 
 <p align="center">
-  <img src="assets/four-petals-360.gif" width="160" alt="Vierblättriges Ladesymbol mit Kontur bei einer langsamen 360-Grad-Drehung" />
+  <img src="assets/four-petals-360.gif" width="160" alt="Four-petal loading indicator with an outline, slowly rotating through 360 degrees" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-360-lines-only.gif" width="160" alt="Nur die blaue Lichtspur des rotierenden vierblättrigen Symbols" />
+  <img src="assets/four-petals-360-lines-only.gif" width="160" alt="Only the moving blue trace of the rotating four-petal design" />
 </p>
 
-[Im Browser ausprobieren](loading-indicator-360.html)
+[View in browser](loading-indicator-360.html)
 
 ---
 
 ### 03 · Four Petals — Crossed 360°
 
-Zwei Blütenebenen stehen im rechten Winkel zueinander und drehen sich gemeinsam
-um 360°. Auf jeder Ebene wandert ein eigener, leicht versetzter Lichtstrich.
+Two flower planes intersect at right angles and rotate together through 360°.
+A separate, slightly offset light trace moves along each plane.
 
 <p align="center">
-  <img src="assets/four-petals-crossed-360.gif" width="160" alt="Zwei gekreuzte vierblättrige Ebenen mit Konturen und bewegten Lichtspuren" />
+  <img src="assets/four-petals-crossed-360.gif" width="160" alt="Two intersecting four-petal planes with outlines and moving light traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-crossed-360-lines-only.gif" width="160" alt="Nur die blauen Lichtspuren der zwei rotierenden gekreuzten Ebenen" />
+  <img src="assets/four-petals-crossed-360-lines-only.gif" width="160" alt="Only the moving blue traces of the two rotating intersecting planes" />
 </p>
 
-[Im Browser ausprobieren](loading-indicator-crossed-360.html)
+[View in browser](loading-indicator-crossed-360.html)
 
 ---
 
 ### 04 · Four Petals — Orbital Triad 360°
 
-Drei Blütenebenen stehen im rechten Winkel zueinander und vervollständigen
-das Raumkreuz. Sie bleiben starr zueinander und drehen sich gemeinsam um die
-Raumdiagonale.
+Three flower planes form an orthogonal cross. They remain rigidly aligned and
+rotate together around a space diagonal.
 
 <p align="center">
-  <img src="assets/four-petals-triad-360.gif" width="160" alt="Drei rechtwinklig angeordnete vierblättrige Ebenen mit Konturen und Lichtspuren" />
+  <img src="assets/four-petals-triad-360.gif" width="160" alt="Three orthogonal four-petal planes with outlines and moving light traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-triad-360-lines-only.gif" width="160" alt="Nur die blauen Lichtspuren der drei gemeinsam rotierenden Ebenen" />
+  <img src="assets/four-petals-triad-360-lines-only.gif" width="160" alt="Only the moving blue traces of the three rotating planes" />
 </p>
 
-[Im Browser ausprobieren](loading-indicator-triad-360.html)
+[View in browser](loading-indicator-triad-360.html)
 
 ---
 
 ### 05 · Four Petals — Octahedral Seven 360°
 
-Vier zusätzliche Ebenen stehen jeweils senkrecht auf einer der vier
-Körperdiagonalen und ergänzen so das orthogonale Dreierkreuz. Alle sieben Ebenen
-bleiben starr gekoppelt und drehen sich gemeinsam um eine Raumdiagonale.
+Four additional planes are perpendicular to the four body diagonals, joining
+the orthogonal three-plane cross. All seven planes remain rigidly aligned and
+rotate together around a space diagonal.
 
 <p align="center">
-  <img src="assets/four-petals-octahedral-360.gif" width="160" alt="Sieben symmetrisch angeordnete vierblättrige Ebenen mit Konturen und blauen Lichtspuren" />
+  <img src="assets/four-petals-octahedral-360.gif" width="160" alt="Seven symmetrically arranged four-petal planes with outlines and moving blue traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-octahedral-360-lines-only.gif" width="160" alt="Nur die bewegten blauen Lichtspuren der sieben rotierenden Ebenen" />
+  <img src="assets/four-petals-octahedral-360-lines-only.gif" width="160" alt="Only the moving blue traces of the seven rotating planes" />
 </p>
 
-[Im Browser ausprobieren](loading-indicator-octahedral-360.html)
+[View in browser](loading-indicator-octahedral-360.html)
 
 ---
 
-Neue Experimente bekommen jeweils eine eigene HTML-Datei und eine passende
-GIF-Vorschau unter `assets/`.
+### 06 · Four Petals — Cubic Thirteen 360°
+
+Six additional planes, perpendicular to the cube's face diagonals, complete
+the 13-plane symmetric arrangement. All planes stay rigidly aligned as they
+rotate together through 360°.
+
+<p align="center">
+  <img src="assets/four-petals-cubic-360.gif" width="160" alt="Thirteen symmetrically arranged four-petal planes with outlines and moving blue traces" />
+  &nbsp;&nbsp;
+  <img src="assets/four-petals-cubic-360-lines-only.gif" width="160" alt="Only the moving blue traces of the thirteen rotating planes" />
+</p>
+
+[View in browser](loading-indicator-cubic-360.html)
