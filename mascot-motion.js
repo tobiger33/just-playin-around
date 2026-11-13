@@ -55,9 +55,9 @@
     const normalized = {
       id: layer.id,
       src: layer.src,
-      parent: layer.parent || null,
-      x: layer.x || 0,
-      y: layer.y || 0,
+      parent: layer.parent === undefined || layer.parent === null ? null : layer.parent,
+      x: layer.x === undefined ? 0 : layer.x,
+      y: layer.y === undefined ? 0 : layer.y,
       width: layer.width === undefined ? 100 : layer.width,
       height: layer.height === undefined ? 100 : layer.height,
       fit: layer.fit || "contain",
@@ -165,6 +165,56 @@
     return state;
   }
 
+  function validateScene(config) {
+    assert(config && typeof config === "object", "scene config must be an object.");
+    assert(Number.isFinite(config.width) && config.width > 0, "scene width must be positive.");
+    assert(Number.isFinite(config.height) && config.height > 0, "scene height must be positive.");
+    assert(Array.isArray(config.layers) && config.layers.length > 0, "scene needs at least one image layer.");
+
+    const ids = new Set();
+    const layers = config.layers.map((layer, index) => normalizeLayer(layer, index, ids));
+    const animations = normalizeAnimations(config.animations, ids);
+    const layerById = new Map(layers.map((layer) => [layer.id, layer]));
+    for (const layer of layers) {
+      assert(
+        layer.parent === null || (typeof layer.parent === "string" && layerById.has(layer.parent)),
+        `layer "${layer.id}" has unknown parent "${layer.parent}".`,
+      );
+      assert(layer.parent !== layer.id, `layer "${layer.id}" cannot parent itself.`);
+    }
+
+    const visited = new Set();
+    const visiting = new Set();
+    function visit(layer) {
+      assert(!visiting.has(layer.id), `layer hierarchy contains a cycle at "${layer.id}".`);
+      if (visited.has(layer.id)) return;
+      visiting.add(layer.id);
+      if (layer.parent) visit(layerById.get(layer.parent));
+      visiting.delete(layer.id);
+      visited.add(layer.id);
+    }
+    for (const layer of layers) visit(layer);
+
+    const perspective = config.perspective === undefined ? 800 : config.perspective;
+    assert(Number.isFinite(perspective) && perspective > 0, "perspective must be positive.");
+    assert(config.debug === undefined || typeof config.debug === "boolean", "debug must be a boolean.");
+    assert(
+      config.autoplay === undefined || (typeof config.autoplay === "string" && hasOwn(animations, config.autoplay)),
+      `unknown autoplay animation "${config.autoplay}".`,
+    );
+
+    return {
+      width: config.width,
+      height: config.height,
+      perspective,
+      label: config.label || "Animated mascot",
+      debug: config.debug === true,
+      autoplay: config.autoplay,
+      layers,
+      animations,
+    };
+  }
+
   function applyState(element, state) {
     element.style.opacity = String(state.opacity);
     element.style.transform =
@@ -178,22 +228,8 @@
       typeof global.HTMLElement === "function" && stage instanceof global.HTMLElement,
       "mount target must be an HTML element.",
     );
-    assert(config && typeof config === "object", "scene config must be an object.");
-    assert(Number.isFinite(config.width) && config.width > 0, "scene width must be positive.");
-    assert(Number.isFinite(config.height) && config.height > 0, "scene height must be positive.");
-    assert(Array.isArray(config.layers) && config.layers.length > 0, "scene needs at least one image layer.");
-
-    const ids = new Set();
-    const layers = config.layers.map((layer, index) => normalizeLayer(layer, index, ids));
-    const animations = normalizeAnimations(config.animations, ids);
-    const layerById = new Map(layers.map((layer) => [layer.id, layer]));
-    for (const layer of layers) {
-      assert(!layer.parent || layerById.has(layer.parent), `layer "${layer.id}" has unknown parent "${layer.parent}".`);
-      assert(layer.parent !== layer.id, `layer "${layer.id}" cannot parent itself.`);
-    }
-
-    const perspective = config.perspective === undefined ? 800 : config.perspective;
-    assert(Number.isFinite(perspective) && perspective > 0, "perspective must be positive.");
+    const scene = validateScene(config);
+    const { layers, animations, perspective } = scene;
     const previousStage = {
       children: Array.from(stage.childNodes),
       style: stage.getAttribute("style"),
@@ -203,14 +239,74 @@
     stage.replaceChildren();
     stage.style.position = "relative";
     stage.style.overflow = "visible";
-    stage.style.aspectRatio = `${config.width} / ${config.height}`;
+    stage.style.aspectRatio = `${scene.width} / ${scene.height}`;
     stage.style.perspective = `${perspective}px`;
     stage.style.transformStyle = "preserve-3d";
     stage.setAttribute("role", "img");
-    stage.setAttribute("aria-label", config.label || "Animated mascot");
+    stage.setAttribute("aria-label", scene.label);
 
     const nodes = new Map();
+    const states = new Map(layers.map((layer) => [layer.id, { ...DEFAULT_STATE }]));
+    const layerById = new Map(layers.map((layer) => [layer.id, layer]));
     const building = new Set();
+    const debugLines = [];
+    let debugOverlay = null;
+
+    function addDebugLayer(layer, joint) {
+      const outline = document.createElement("div");
+      outline.dataset.mascotDebug = "bounds";
+      outline.style.cssText =
+        "position:absolute;inset:0;border:1px dashed #ff6b6b;box-sizing:border-box;pointer-events:none;";
+
+      const pivot = document.createElement("span");
+      pivot.dataset.mascotDebug = "pivot";
+      pivot.style.cssText =
+        `position:absolute;left:${layer.origin[0] * 100}%;top:${layer.origin[1] * 100}%;width:9px;height:9px;` +
+        "border:2px solid #fff;background:#f43f5e;border-radius:50%;transform:translate(-50%,-50%);";
+
+      const label = document.createElement("span");
+      label.dataset.mascotDebug = "label";
+      label.textContent = layer.parent ? `${layer.id} ← ${layer.parent}` : layer.id;
+      label.style.cssText =
+        "position:absolute;left:2px;top:2px;padding:2px 4px;color:#fff;background:#c02638;" +
+        "font:11px/1.2 ui-monospace,monospace;white-space:nowrap;pointer-events:none;";
+      joint.append(outline, pivot, label);
+    }
+
+    function createDebugOverlay() {
+      if (!scene.debug) return;
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      debugOverlay = document.createElementNS(svgNamespace, "svg");
+      debugOverlay.dataset.mascotDebug = "parents";
+      debugOverlay.setAttribute("viewBox", `0 0 ${scene.width} ${scene.height}`);
+      debugOverlay.setAttribute("preserveAspectRatio", "none");
+      debugOverlay.style.cssText =
+        "position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none;z-index:2147483647;";
+      for (const layer of layers) {
+        if (!layer.parent) continue;
+        const line = document.createElementNS(svgNamespace, "line");
+        line.setAttribute("stroke", "#ffd166");
+        line.setAttribute("stroke-width", "2");
+        line.setAttribute("stroke-dasharray", "5 4");
+        debugOverlay.append(line);
+        debugLines.push({ line, child: layer.id, parent: layer.parent });
+      }
+      stage.append(debugOverlay);
+    }
+
+    function updateDebugLines() {
+      if (!debugOverlay) return;
+      const stageRect = stage.getBoundingClientRect();
+      if (!stageRect.width || !stageRect.height) return;
+      for (const { line, child, parent } of debugLines) {
+        const childRect = nodes.get(child).getBoundingClientRect();
+        const parentRect = nodes.get(parent).getBoundingClientRect();
+        line.setAttribute("x1", String(((parentRect.left + parentRect.width / 2 - stageRect.left) / stageRect.width) * scene.width));
+        line.setAttribute("y1", String(((parentRect.top + parentRect.height / 2 - stageRect.top) / stageRect.height) * scene.height));
+        line.setAttribute("x2", String(((childRect.left + childRect.width / 2 - stageRect.left) / stageRect.width) * scene.width));
+        line.setAttribute("y2", String(((childRect.top + childRect.height / 2 - stageRect.top) / stageRect.height) * scene.height));
+      }
+    }
 
     function buildLayer(layer) {
       if (nodes.has(layer.id)) return nodes.get(layer.id);
@@ -247,6 +343,7 @@
         );
       });
       joint.append(image);
+      if (scene.debug) addDebugLayer(layer, joint);
       parent.append(joint);
       nodes.set(layer.id, joint);
       building.delete(layer.id);
@@ -254,6 +351,7 @@
     }
 
     for (const layer of layers) buildLayer(layer);
+    createDebugOverlay();
 
     const reduceMotion = global.matchMedia("(prefers-reduced-motion: reduce)");
     let animationName = null;
@@ -268,8 +366,11 @@
       for (const layer of layers) {
         const element = nodes.get(layer.id);
         const frames = animation.tracks[layer.id];
-        applyState(element, frames ? interpolate(frames, progress, animation.easing) : DEFAULT_STATE);
+        const state = frames ? interpolate(frames, progress, animation.easing) : { ...DEFAULT_STATE };
+        states.set(layer.id, state);
+        applyState(element, state);
       }
+      updateDebugLines();
     }
 
     function tick(now) {
@@ -339,8 +440,39 @@
         cancelFrame();
         elapsed = 0;
         animationName = null;
-        for (const element of nodes.values()) applyState(element, DEFAULT_STATE);
+        for (const [layerId, element] of nodes) {
+          const state = { ...DEFAULT_STATE };
+          states.set(layerId, state);
+          applyState(element, state);
+        }
         return controller;
+      },
+      seek(position) {
+        assert(!destroyed, "cannot seek a destroyed scene.");
+        assert(animationName, "choose an animation with play(name) before seeking.");
+        const animation = animations[animationName];
+        const duration = animation.duration * 1000;
+        let progress;
+        if (typeof position === "number") {
+          assert(Number.isFinite(position) && position >= 0 && position <= 1, "seek progress must be between 0 and 1.");
+          progress = position;
+          elapsed = progress * duration;
+        } else {
+          assert(
+            position && typeof position === "object" && Number.isFinite(position.time) && position.time >= 0,
+            "seek expects a normalized progress number or { time } in seconds.",
+          );
+          elapsed = position.time * 1000;
+          progress = animation.loop ? (elapsed % duration) / duration : Math.min(elapsed / duration, 1);
+        }
+        cancelFrame();
+        paused = true;
+        renderAt(progress);
+        return controller;
+      },
+      getState(layerId) {
+        assert(states.has(layerId), `unknown layer "${layerId}".`);
+        return { ...states.get(layerId) };
       },
       destroy() {
         if (destroyed) return;
@@ -364,9 +496,15 @@
       },
     };
 
-    if (config.autoplay) controller.play(config.autoplay);
+    if (scene.autoplay) controller.play(scene.autoplay);
     return controller;
   }
 
-  global.MascotMotion = Object.freeze({ mount, easings: Object.keys(EASINGS) });
+  const MascotMotion = Object.freeze({
+    mount,
+    validateScene,
+    easings: Object.keys(EASINGS),
+  });
+  global.MascotMotion = MascotMotion;
+  if (typeof module === "object" && module.exports) module.exports = MascotMotion;
 })(globalThis);

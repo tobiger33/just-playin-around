@@ -112,9 +112,47 @@ pixels, degrees, or scale factors. Supported animated properties are `x`, `y`,
 `backOut`, and `spring`.
 
 The controller provides `play(name)`, `pause()`, `resume()`, `stop()`,
-`destroy()`, and read-only `animation` and `layerIds` properties. Invalid scene
-data throws a descriptive error; missing images dispatch a
-`mascotmotion:error` event from the mount element.
+`seek(progress)` (normalized `0..1`), `seek({ time })` (seconds), `getState(id)`,
+`destroy()`, and read-only `animation` and `layerIds` properties. Seeking
+cancels playback and renders synchronously without scheduling a frame. Seeking
+by time wraps looping clips and clamps one-shots. `MascotMotion.validateScene`
+validates scene data without mounting it. Invalid scene data throws a
+descriptive error; missing images dispatch a `mascotmotion:error` event from
+the mount element.
+
+Set `debug: true` in the scene to show layer bounds, IDs, pivots, and parent
+connectors. The Studio provides a frame scrubber and debug toggle for uploaded
+preview artwork.
+
+## M1 verification harness
+
+Install the pinned development dependencies and browser once:
+
+```sh
+npm install
+npx playwright install chromium
+```
+
+Validate a scene and its local image paths/dimensions:
+
+```sh
+npm run validate-scene -- --scene path/to/scene.json
+```
+
+Render deterministic frames and a labeled SVG contact sheet:
+
+```sh
+npm run frames -- --scene path/to/scene.json --anim idle --at 0,0.25,0.5,0.75,1
+```
+
+Run the runtime tests, fixture validation, and frame render together:
+
+```sh
+npm run verify
+```
+
+The verification command prints the contact-sheet path. `MascotMotion` is
+available as a browser global and a CommonJS export for Node-based validation.
 
 ## Delivery checks
 
@@ -123,5 +161,7 @@ data throws a descriptive error; missing images dispatch a
 - Test looping clips across the loop boundary and check the reduced-motion
   behavior. The runtime validates that looping tracks return to their starting
   pose; use `loop: false` for one-shot actions.
+- For deterministic inspection, use `seek()` and `npm run frames`; check every
+  contact-sheet frame and the debug overlay before integrating the scene.
 - Keep each animation in a named clip so the host application can choose when
   to play it.

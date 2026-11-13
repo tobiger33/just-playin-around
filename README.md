@@ -21,6 +21,14 @@ rotation on all three axes, perspective, parented image layers, and reduced
 motion preferences. High-quality articulation works best with separated,
 transparent artwork parts.
 
+### M1 verification harness
+
+Install dependencies and Chromium once with `npm install` and
+`npx playwright install chromium`. Then run `npm run verify` to test runtime
+seeking, validate the example scene and its assets, and render deterministic
+frames with a contact sheet. Use `npm run validate-scene -- --scene scene.json`
+and `npm run frames -- --scene scene.json --anim idle` for individual checks.
+
 ## Loading Indicator Gallery
 
 Each loading indicator has a standalone HTML demo and two animated previews:

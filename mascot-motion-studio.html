@@ -298,7 +298,7 @@
       .preview-panel {
         display: grid;
         min-height: 600px;
-        grid-template-rows: auto 1fr auto;
+        grid-template-rows: auto auto minmax(0, 1fr) auto;
         padding: 1rem;
       }
 
@@ -313,6 +313,32 @@
       .preview-toolbar .status {
         margin: 0;
         text-align: right;
+      }
+
+      .preview-tools {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0 0.25rem 0.75rem;
+        color: var(--muted);
+        font-size: 0.75rem;
+      }
+
+      .preview-tools label {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        white-space: nowrap;
+      }
+
+      .preview-tools input[type="checkbox"] {
+        accent-color: var(--accent);
+      }
+
+      .preview-tools input[type="range"] {
+        width: 100%;
+        accent-color: var(--accent);
       }
 
       .stage-wrap {
@@ -525,6 +551,11 @@
             <h2>Live preview</h2>
             <p class="status" id="preview-status">No artwork loaded</p>
           </div>
+          <div class="preview-tools">
+            <label><input id="debug-toggle" type="checkbox" disabled /> Debug rig</label>
+            <label for="timeline">Frame <input id="timeline" type="range" min="0" max="1000" value="0" disabled /></label>
+            <output id="timeline-value">0%</output>
+          </div>
           <div class="stage-wrap" id="stage-wrap">
             <div class="stage-box" id="stage-box">
               <div id="stage"></div>
@@ -553,6 +584,9 @@
         const stageBox = document.querySelector("#stage-box");
         const stageWrap = document.querySelector("#stage-wrap");
         const emptyState = document.querySelector("#empty-state");
+        const debugToggle = document.querySelector("#debug-toggle");
+        const timeline = document.querySelector("#timeline");
+        const timelineValue = document.querySelector("#timeline-value");
         const marker = document.querySelector("#pivot-marker");
         const message = document.querySelector("#message");
         const previewStatus = document.querySelector("#preview-status");
@@ -777,6 +811,7 @@
             height: 512,
             perspective: 850,
             label: "Mascot preview",
+            debug: debugToggle.checked,
             layers: layers.map((layer, index) => ({
               id: layer.id,
               src: layer.src,
@@ -823,6 +858,8 @@
           layerCount.textContent = `${layers.length} ${layers.length === 1 ? "part" : "parts"}`;
           pivotButton.disabled = !selectedLayer;
           clearButton.disabled = layers.length === 0;
+          debugToggle.disabled = layers.length === 0;
+          timeline.disabled = layers.length === 0;
           pivotButton.textContent = editingPivot ? "Finish pivot" : "Edit pivot";
           pivotButton.setAttribute("aria-pressed", String(editingPivot));
           stageBox.classList.toggle("editing-pivot", editingPivot);
@@ -847,12 +884,16 @@
           if (!layers.length) {
             emptyState.hidden = false;
             previewStatus.textContent = "No artwork loaded";
+            timeline.value = "0";
+            timelineValue.value = "0%";
             marker.style.display = "none";
             return;
           }
           emptyState.hidden = true;
           controller = MascotMotion.mount(stage, sceneConfig());
           controller.play(activeMotion);
+          timeline.value = "0";
+          timelineValue.value = "0%";
           if (editingPivot) controller.pause();
           previewStatus.textContent = `${layers.length} ${layers.length === 1 ? "part" : "parts"} · ${activeMotion}`;
           positionMarker();
@@ -1184,6 +1225,8 @@
           if (!button) return;
           activeMotion = button.dataset.motion;
           hideAgentOutput();
+          timeline.value = "0";
+          timelineValue.value = "0%";
           document.querySelectorAll("#motion-grid button").forEach((item) => {
             item.setAttribute("aria-pressed", String(item === button));
           });
@@ -1195,6 +1238,15 @@
             ? `${layers.length} ${layers.length === 1 ? "part" : "parts"} · ${activeMotion}`
             : "Load artwork to preview";
         });
+
+        timeline.addEventListener("input", () => {
+          if (!controller) return;
+          const progress = Number(timeline.value) / 1000;
+          controller.seek(progress);
+          timelineValue.value = `${Math.round(progress * 100)}%`;
+        });
+
+        debugToggle.addEventListener("change", updatePreview);
 
         stageBox.addEventListener("click", (event) => {
           if (!selectedLayer || !editingPivot) return;

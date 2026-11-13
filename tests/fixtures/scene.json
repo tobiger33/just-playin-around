@@ -1,0 +1,37 @@
+{
+  "width": 512,
+  "height": 512,
+  "perspective": 800,
+  "layers": [
+    {
+      "id": "flower",
+      "src": "../../assets/four-petals-crossed-360-static.svg",
+      "origin": [0.5, 0.5]
+    }
+  ],
+  "animations": {
+    "idle": {
+      "duration": 2,
+      "loop": true,
+      "easing": "easeInOut",
+      "tracks": {
+        "flower": [
+          { "at": 0, "y": 0, "rotateZ": 0 },
+          { "at": 0.5, "y": -12, "rotateZ": 4 },
+          { "at": 1, "y": 0, "rotateZ": 0 }
+        ]
+      }
+    },
+    "hop": {
+      "duration": 1,
+      "loop": false,
+      "tracks": {
+        "flower": [
+          { "at": 0, "y": 0 },
+          { "at": 0.5, "y": -48 },
+          { "at": 1, "y": 0 }
+        ]
+      }
+    }
+  }
+}
