@@ -1,8 +1,12 @@
 "use strict";
 
-const { validateScene } = require("../mascot-motion.js");
+const Ajv2020 = require("ajv/dist/2020").default;
+const { validateScene } = require("../src/runtime/mascot-motion.js");
 const { parseOptions, readScene } = require("./cli-utils.js");
 const { resolveSceneAssets } = require("./scene-assets.js");
+const sceneSchema = require("../schema/scene.schema.json");
+const ajv = new Ajv2020({ allErrors: true });
+const validateSchema = ajv.compile(sceneSchema);
 
 function main() {
   const options = parseOptions(process.argv.slice(2), ["scene"]);
@@ -12,7 +16,14 @@ function main() {
   }
   if (!options.scene) throw new Error("missing required --scene path");
 
-  const { scene, scenePath } = readScene(options.scene);
+  const { scene: rawScene, scenePath } = readScene(options.scene);
+  const scene = rawScene.version === undefined ? { ...rawScene, version: 1 } : rawScene;
+  if (!validateSchema(scene)) {
+    const details = validateSchema.errors.map((error) =>
+      `${error.instancePath || "/"} ${error.message}`,
+    ).join("\n");
+    throw new Error(`scene does not match schema/scene.schema.json:\n${details}`);
+  }
   const validatedScene = validateScene(scene);
   const { assets } = resolveSceneAssets(validatedScene, scenePath);
   const remoteAssets = assets.filter((asset) => asset.remote);

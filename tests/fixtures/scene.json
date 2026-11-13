@@ -1,12 +1,17 @@
 {
+  "version": 1,
   "width": 512,
   "height": 512,
   "perspective": 800,
   "layers": [
     {
       "id": "flower",
-      "src": "../../assets/four-petals-crossed-360-static.svg",
-      "origin": [0.5, 0.5]
+      "src": "../../examples/loading-indicators/assets/four-petals-crossed-360-static.svg",
+      "origin": [0.5, 0.5],
+      "x": 10,
+      "y": 10,
+      "width": 80,
+      "height": 80
     }
   ],
   "animations": {

@@ -574,7 +574,7 @@
       </div>
     </main>
 
-    <script src="mascot-motion.js"></script>
+    <script src="../runtime/mascot-motion.js"></script>
     <script>
       (() => {
         const fileInput = document.querySelector("#file-input");
@@ -807,6 +807,7 @@
         function sceneConfig() {
           const body = layers.find((layer) => /body|torso|core|mascot/.test(layer.id)) || layers[0];
           return {
+            version: 1,
             width: 512,
             height: 512,
             perspective: 850,

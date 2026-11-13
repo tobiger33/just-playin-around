@@ -167,6 +167,8 @@
 
   function validateScene(config) {
     assert(config && typeof config === "object", "scene config must be an object.");
+    const version = config.version === undefined ? 1 : config.version;
+    assert(version === 1, `unsupported scene version "${version}"; this runtime supports version 1.`);
     assert(Number.isFinite(config.width) && config.width > 0, "scene width must be positive.");
     assert(Number.isFinite(config.height) && config.height > 0, "scene height must be positive.");
     assert(Array.isArray(config.layers) && config.layers.length > 0, "scene needs at least one image layer.");
@@ -204,6 +206,7 @@
     );
 
     return {
+      version,
       width: config.width,
       height: config.height,
       perspective,

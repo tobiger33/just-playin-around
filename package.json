@@ -9,10 +9,15 @@
     "test": "node --test",
     "validate-scene": "node scripts/validate-scene.js",
     "frames": "node scripts/render-frames.js",
+    "check-motion": "node scripts/check-motion.js",
+    "secret-scan": "secretlint \"**/*\"",
     "verify": "node scripts/verify.js"
   },
   "devDependencies": {
+    "@secretlint/secretlint-rule-preset-recommend": "12.3.1",
+    "ajv": "8.20.0",
     "image-size": "2.1.0",
-    "playwright": "1.65.0"
+    "playwright": "1.65.0",
+    "secretlint": "12.3.1"
   }
 }

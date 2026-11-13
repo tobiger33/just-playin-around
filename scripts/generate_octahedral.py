@@ -7,7 +7,7 @@ from PIL import Image, ImageDraw
 
 
 ROOT = Path(__file__).resolve().parent.parent
-ASSETS = ROOT / "assets"
+ASSETS = ROOT / "examples" / "loading-indicators" / "assets"
 BACKGROUND = (246, 245, 242)
 TRACK = (220, 222, 226)
 BLUE = (83, 111, 196)
