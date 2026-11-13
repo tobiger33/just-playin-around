@@ -7,8 +7,8 @@ alongside a gallery of loading indicator experiments.
 
 Upload a single image for whole-character movement or transparent image parts
 for articulated gestures. Preview motion in 2D and CSS 3D, set joint pivots,
-then copy an animation brief for your coding agent or download the scene
-configuration.
+then copy an animation brief for your coding agent or download a starter bundle
+containing the image parts and scene configuration.
 
 - [Open Mascot Motion Studio](mascot-motion-studio.html)
 - [Read the coding-agent workflow](AGENTS.md)

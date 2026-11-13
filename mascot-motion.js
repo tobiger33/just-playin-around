@@ -60,6 +60,7 @@
       y: layer.y || 0,
       width: layer.width === undefined ? 100 : layer.width,
       height: layer.height === undefined ? 100 : layer.height,
+      fit: layer.fit || "contain",
       origin: [origin[0], origin[1], origin[2] || 0],
       zIndex: layer.zIndex === undefined ? index : layer.zIndex,
       alt: layer.alt || "",
@@ -68,6 +69,7 @@
       assert(Number.isFinite(normalized[key]), `layer "${layer.id}" ${key} must be a finite number.`);
     }
     assert(normalized.width > 0 && normalized.height > 0, `layer "${layer.id}" dimensions must be positive.`);
+    assert(["contain", "cover", "fill"].includes(normalized.fit), `layer "${layer.id}" fit must be contain, cover, or fill.`);
     ids.add(layer.id);
     return normalized;
   }
@@ -76,9 +78,11 @@
     assert(animations && typeof animations === "object", "animations must be an object.");
     const result = Object.create(null);
     for (const [name, animation] of Object.entries(animations)) {
+      assert(name.trim(), "animation names cannot be empty.");
       assert(animation && typeof animation === "object", `animation "${name}" must be an object.`);
       assert(Number.isFinite(animation.duration) && animation.duration > 0, `animation "${name}" needs a positive duration.`);
       assert(animation.tracks && typeof animation.tracks === "object", `animation "${name}" needs tracks.`);
+      assert(animation.loop === undefined || typeof animation.loop === "boolean", `animation "${name}" loop must be a boolean.`);
       const easing = animation.easing || "easeInOut";
       assert(hasOwn(EASINGS, easing), `unknown easing "${easing}" in animation "${name}".`);
       const tracks = Object.create(null);
@@ -97,14 +101,33 @@
             if (property === "at" || property === "easing") continue;
             assert(hasOwn(DEFAULT_STATE, property), `unsupported property "${property}" in "${name}".`);
             assert(Number.isFinite(value), `"${property}" values in "${name}" must be finite numbers.`);
+            if (property === "opacity") {
+              assert(value >= 0 && value <= 1, `opacity in "${name}" must be between 0 and 1.`);
+            }
             normalized[property] = value;
           }
           return normalized;
         });
       }
+      assert(Object.keys(tracks).length > 0, `animation "${name}" needs at least one layer track.`);
+      const loop = animation.loop !== false;
+      if (loop) {
+        for (const [layerId, frames] of Object.entries(tracks)) {
+          const first = interpolate(frames, 0, easing);
+          const last = interpolate(frames, 1, easing);
+          const seamless = Object.keys(DEFAULT_STATE).every((property) => {
+            const difference = first[property] - last[property];
+            if (property.startsWith("rotate")) {
+              return Math.abs((((difference + 180) % 360) + 360) % 360 - 180) < 0.0001;
+            }
+            return Math.abs(difference) < 0.0001;
+          });
+          assert(seamless, `looping track "${layerId}" in "${name}" must have matching first and last poses.`);
+        }
+      }
       result[name] = {
         duration: animation.duration,
-        loop: animation.loop !== false,
+        loop,
         easing,
         tracks,
       };
@@ -151,7 +174,10 @@
   }
 
   function mount(stage, config) {
-    assert(stage instanceof HTMLElement, "mount target must be an HTML element.");
+    assert(
+      typeof global.HTMLElement === "function" && stage instanceof global.HTMLElement,
+      "mount target must be an HTML element.",
+    );
     assert(config && typeof config === "object", "scene config must be an object.");
     assert(Number.isFinite(config.width) && config.width > 0, "scene width must be positive.");
     assert(Number.isFinite(config.height) && config.height > 0, "scene height must be positive.");
@@ -202,7 +228,6 @@
       joint.style.zIndex = String(layer.zIndex);
       joint.style.transformOrigin = `${layer.origin[0] * 100}% ${layer.origin[1] * 100}% ${layer.origin[2] || 0}px`;
       joint.style.transformStyle = "preserve-3d";
-      joint.style.willChange = "transform, opacity";
 
       const image = document.createElement("img");
       image.src = layer.src;
@@ -212,7 +237,7 @@
       image.style.display = "block";
       image.style.width = "100%";
       image.style.height = "100%";
-      image.style.objectFit = "fill";
+      image.style.objectFit = layer.fit;
       image.addEventListener("error", () => {
         stage.dispatchEvent(
           new CustomEvent("mascotmotion:error", {

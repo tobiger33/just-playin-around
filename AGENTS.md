@@ -88,6 +88,7 @@ data throws a descriptive error; missing images dispatch a
 - Preview the motion in a browser at the target size and verify that images
   load, pivots feel attached, and the action reads clearly.
 - Test looping clips across the loop boundary and check the reduced-motion
-  behavior.
+  behavior. The runtime validates that looping tracks return to their starting
+  pose; use `loop: false` for one-shot actions.
 - Keep each animation in a named clip so the host application can choose when
   to play it.
