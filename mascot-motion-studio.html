@@ -449,8 +449,8 @@
         <p class="eyebrow">AI-assisted character animation</p>
         <h1>Mascot Motion Studio</h1>
         <p class="lede">
-          Attach your image directly to your coding agent and describe the motion you want.
-          Use this studio only if you also want to preview artwork or export scene assets.
+          Give your coding agent the code or files you are working on and describe the motion you
+          want. An image is optional; use this studio only for an artwork preview or scene export.
         </p>
       </header>
 
@@ -458,22 +458,22 @@
         <aside class="panel controls" aria-label="Animation controls">
           <section class="section">
             <div class="section-heading">
-              <h2>1. Optional: preview artwork</h2>
+              <h2>1. Optional: preview an image</h2>
               <span class="count" id="layer-count">0 parts</span>
             </div>
             <p class="hint">
-              Your coding agent can work from one attached image. Upload here only to preview
-              motion or prepare optional assets; you do not need to mark or split shapes.
+              Your coding agent can work from code, HTML, components, snippets, or other project
+              files. An image is optional; no manual shape marking is required.
             </p>
             <div class="upload-row">
               <label class="file-button primary">
-                Add image part(s)
+                Add preview image(s)
                 <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple />
               </label>
               <button id="sample-button" type="button">Load sample</button>
             </div>
             <p class="hint">
-              Drop files here too. Multiple transparent parts are optional. Limit: 25 MB each, 100 MB total.
+              Upload images here only for the visual preview. Multiple transparent parts are optional. Limit: 25 MB each, 100 MB total.
             </p>
             <ul class="layer-list" id="layer-list" aria-label="Uploaded image parts"></ul>
             <div class="upload-row">
@@ -505,7 +505,7 @@
 
           <section class="section">
             <label for="brief">3. Describe the animation for your coding agent</label>
-            <textarea id="brief">Give the mascot a distinctive personality with clear poses, anticipation, overlapping follow-through, and a satisfying settle. Keep idle loops seamless; play discrete actions once.</textarea>
+            <textarea id="brief">Animate the requested subject in the existing project. Use clear poses, anticipation, overlapping follow-through, and a satisfying settle. Keep idle loops seamless; play discrete actions once.</textarea>
             <div class="export-row">
               <button class="primary" id="copy-brief" type="button">Copy coding-agent instructions</button>
               <button id="download-scene" type="button">Scene JSON only</button>
@@ -515,7 +515,7 @@
             </div>
             <textarea id="agent-output" aria-label="Generated agent prompt" readonly hidden></textarea>
             <p class="status" id="message" aria-live="polite">
-              Preview upload is optional. Copy instructions and attach your image directly to your coding agent.
+              Work with your code or files in the coding agent. Image preview is optional.
             </p>
           </section>
         </aside>
@@ -530,7 +530,7 @@
               <div id="stage"></div>
               <div class="empty-state" id="empty-state">
                 <strong>Your mascot appears here</strong>
-                <span>Upload an image here only to preview motion, or load the sample. Your coding agent can use the image attached to your request directly.</span>
+                <span>Upload an image only if you want to preview it. Your coding agent works directly with your code and project files.</span>
               </div>
               <div class="pivot-marker" id="pivot-marker"></div>
             </div>
@@ -1233,21 +1233,22 @@
         document.querySelector("#copy-brief").addEventListener("click", async () => {
           const assetList = layers.map((layer) => `- assets/${layer.exportName} (pivot ${layer.origin.map((value) => `${Math.round(value * 100)}%`).join(", ")})`).join("\n");
           const prompt = [
-            "Implement the mascot animation in this project. The image attached to my coding-agent request is the source artwork; use it directly. Do not require me to upload it again here, split it into parts, mark shapes, or set pivots.",
-            `Animation direction: ${brief.value.trim() || "Create a distinctive, expressive motion."}`,
-            "Inspect the attached artwork and project, then update the named/existing HTML page in place if there is one. Otherwise, integrate with a suitable existing page or create a standalone HTML page if none fits. Preserve existing behavior.",
-            "Default to animating a flattened image as a whole. Create independently moving parts only when transparent boundaries, source layers, or reliable automatic analysis make separation convincing and useful. Preserve the original artwork and do not invent separate limbs.",
-            "Use mascot-motion.js if it exists and fits the target. For a standalone HTML page or simple motion, prefer compact self-contained HTML/CSS/JavaScript instead of requiring a separate bundle or new dependencies. Make asset paths work in the actual page.",
+            "Implement my animation request in this project using the code, files, snippets, selected editor content, or other context I provided. An image is optional. Do not require me to upload anything to Mascot Motion Studio or convert my project to a different technology.",
+            `Animation direction: ${brief.value.trim() || "Create a distinctive, expressive animation that fits the existing project."}`,
+            "Inspect my request and project, then identify the right existing source files and the project's language, framework, and rendering approach. Modify the named or selected source in place and preserve existing behavior. This may be HTML/CSS/JavaScript, TypeScript, a UI component, SVG, canvas, or another supported stack.",
+            "Do not replace an existing component or application with an unrelated HTML demo. Create a standalone HTML page only if I ask for one or the project has no suitable target and HTML fits the task.",
+            "If I provided an image, use it directly. Animate a flattened image as a whole by default; create independently moving parts only when transparent boundaries, source layers, or reliable automatic analysis make separation convincing. Preserve the original artwork and do not invent separate limbs.",
+            "Use mascot-motion.js only if it exists and fits the target. Otherwise use the project's native animation approach and existing dependencies. Keep asset paths and the project's normal run/build workflow working.",
             layers.length
-              ? `Optional Studio preview assets (use only if already available in the project; do not require a separate bundle):\n${assetList}\nStarting preview preset: ${activeMotion}.`
-              : "No Studio assets are required; use the image attached directly to my coding-agent request.",
-            "Implement the result in project files, not just a prompt or scene JSON. Preview the actual HTML with the image loaded, confirm visible motion over time, check the loop boundary or one-shot settle, test reduced-motion behavior and controls, and check the browser console. Report the changed files and verification.",
+              ? `Optional Studio preview assets (use only if already available in the project; no separate bundle is required):\n${assetList}\nStarting preview preset: ${activeMotion}.`
+              : "No Studio assets or image upload are required. Work with the source code and project files provided to the coding agent.",
+            "Implement the result in project files, not just a prompt or scene JSON. Run the relevant project checks. If the target is a browser interface, preview the actual page or component and verify visible motion, the loop boundary or one-shot settle, reduced-motion behavior, controls, and console errors. Report changed files and verification.",
           ].join("\n\n");
           try {
             const copied = await copyText(prompt);
             setMessage(
               copied
-                ? "Instructions copied. Attach your image directly to your coding agent and paste them with your animation request."
+                ? "Instructions copied. Give your coding agent the code/files you want to animate and paste them with your request. An image is optional."
                 : "Clipboard access is unavailable. The instructions are shown below; select and copy them manually.",
               !copied,
             );
@@ -1255,7 +1256,7 @@
             agentOutput.hidden = false;
             agentOutput.value = prompt;
             setMessage(
-              `Clipboard access failed: ${error instanceof Error ? error.message : String(error)}. The brief is shown below.`,
+              `Clipboard access failed: ${error instanceof Error ? error.message : String(error)}. The instructions are shown below.`,
               true,
             );
           }

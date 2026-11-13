@@ -5,11 +5,12 @@ alongside a gallery of loading indicator experiments.
 
 ## Mascot Motion Toolkit
 
-Attach an image directly to your coding agent and describe the animation you
-want. The agent should inspect the artwork and project, then implement and test
-the result in the relevant HTML page (or create one when needed); manual image
-splitting and pivot marking are not required. The Studio upload is optional,
-for previewing motions or exporting reusable scene assets.
+Give your coding agent the code, files, snippets, or project context you want to
+animate, then describe the motion. The agent should work in the existing
+language and framework, update the appropriate source, and test the result.
+Images are optional; the Studio upload is only for previewing artwork or
+exporting reusable scene assets. Manual image splitting and pivot marking are
+not required.
 
 - [Open Mascot Motion Studio](mascot-motion-studio.html)
 - [Read the coding-agent workflow](AGENTS.md)

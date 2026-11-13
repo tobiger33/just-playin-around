@@ -1,36 +1,40 @@
-# Mascot animation workflow for coding agents
+# Animation workflow for coding agents
 
-When asked to animate a mascot in this repository, use `mascot-motion.js` as
-the default runtime and follow the workflow below.
+When asked to add animation to code or animate a mascot, inspect the target
+project and use `mascot-motion.js` only when it fits the existing stack.
 
-## Image-to-animation requests
+## Work from code, artwork, or project context
 
-- Treat an image attached to the user's coding-agent request as the source
-  artwork. The user should not need to upload it again to Mascot Motion Studio,
-  split it into parts, identify shapes, or set pivots.
-- Inspect the image and the existing project first. If the user names an HTML
-  file, update that file in place and preserve its existing content and
-  behavior. Otherwise, integrate with the relevant existing page; create a
-  standalone HTML page only when the project has no suitable target or the user
-  asks for one.
+- Work from any code, files, snippets, selected editor content, or image the
+  user provides; an image is optional. Inspect the project to identify its
+  language, framework, entry points, and existing animation/rendering approach.
+- Modify the user's named or selected source in its existing language and
+  framework. This includes HTML/CSS/JavaScript, TypeScript, UI components, SVG,
+  canvas, and other supported project code. Do not replace a component or
+  application with an unrelated HTML demo. Preserve existing behavior and
+  conventions.
+- If the user asks for an HTML page, update the specified page or create one
+  when appropriate. Create a standalone HTML deliverable only when requested
+  or when the project has no suitable existing target and HTML fits the task.
+- Use an attached image directly when one is provided, but do not require a
+  separate Studio upload, manual part splitting, shape marking, or pivot setup.
 - Default to animating a single flattened image as a whole. Only create
   independently moving parts when transparent boundaries, source layers, or
   reliable automatic image analysis make the separation convincing and useful.
   Preserve the original artwork; never invent movable limbs or ask the user to
   mark shapes as a prerequisite. If a necessary visual distinction cannot be
   inferred, use whole-image motion and explain the limitation.
-- Use `mascot-motion.js` when it is present and fits the target page. For a
-  standalone HTML deliverable or a simple effect, prefer a small self-contained
-  CSS/JavaScript implementation over adding dependencies or making the user
-  assemble a separate runtime bundle.
-- Implement the requested result in the project, not just a prompt, scene JSON,
-  or implementation instructions. Make sure the image path resolves and the
-  HTML can be opened or run using the project's existing workflow.
-- Preview the actual target page and image at its intended size. Verify that
-  the animation visibly changes over time, looping motion returns cleanly to
-  its initial pose (or a one-shot action settles and stops), controls work,
-  reduced-motion preferences are respected, and the browser console has no
-  relevant errors. Report what was changed and how it was checked.
+- Choose an implementation that fits the target: use `mascot-motion.js` for
+  compatible DOM image-layer scenes; otherwise use the project's native
+  animation APIs and existing dependencies. Avoid adding dependencies when the
+  current stack can do the job.
+- Implement the requested result in project files, not just a prompt, scene
+  JSON, or implementation instructions. Keep existing project workflows and
+  make any new asset paths resolve.
+- Run the most relevant project checks. For browser interfaces, preview the
+  actual target at its intended size and verify visible movement, a clean loop
+  boundary or one-shot settle, working controls, reduced-motion behavior, and
+  no relevant console errors. Report what changed and how it was checked.
 
 ## Artwork and rigging
 
