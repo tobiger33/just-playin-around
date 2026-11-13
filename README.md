@@ -3,6 +3,10 @@
 A lightweight, agent-friendly toolkit for building expressive mascot motion,
 alongside a gallery of loading indicator experiments.
 
+The project is licensed under MIT; see [LICENSE](LICENSE). See
+[CONTRIBUTING.md](CONTRIBUTING.md) to contribute and [SECURITY.md](SECURITY.md)
+to report a vulnerability privately.
+
 ## Mascot Motion Toolkit
 
 Give your coding agent the code, files, snippets, or project context you want to
@@ -12,9 +16,9 @@ Images are optional; the Studio upload is only for previewing artwork or
 exporting reusable scene assets. Manual image splitting and pivot marking are
 not required.
 
-- [Open Mascot Motion Studio](mascot-motion-studio.html)
+- [Open Mascot Motion Studio](src/studio/mascot-motion-studio.html)
 - [Read the coding-agent workflow](AGENTS.md)
-- [Use the animation runtime](mascot-motion.js)
+- [Use the animation runtime](src/runtime/mascot-motion.js)
 
 The runtime supports keyframed translation, squash-and-stretch, opacity,
 rotation on all three axes, perspective, parented image layers, and reduced
@@ -23,11 +27,22 @@ transparent artwork parts.
 
 ### M1 verification harness
 
-Install dependencies and Chromium once with `npm install` and
+Install dependencies and Chromium once with `npm ci` and
 `npx playwright install chromium`. Then run `npm run verify` to test runtime
-seeking, validate the example scene and its assets, and render deterministic
-frames with a contact sheet. Use `npm run validate-scene -- --scene scene.json`
-and `npm run frames -- --scene scene.json --anim idle` for individual checks.
+seeking, validate the example scene and its assets, check motion bounds, and
+render deterministic frames with a PNG/SVG contact sheet. The PNG contact
+sheet is written to `frames/verify/contact-sheet.png`; `frames/` is ignored by
+Git. Use `SKIP_BROWSER=1 npm test` or `SKIP_BROWSER=1 npm run verify` to skip
+browser checks when Chromium is unavailable. Use
+`npm run validate-scene -- --scene scene.json`,
+`npm run check-motion -- --scene scene.json`, and
+`npm run frames -- --scene scene.json --anim idle --debug` for individual checks.
+
+Scenes use schema version 1, defined in [schema/scene.schema.json](schema/scene.schema.json);
+see [docs/scene-format.md](docs/scene-format.md) for compatibility and migration
+guidance.
+Scenes without a `version` field are treated as version 1 for backward
+compatibility; unsupported explicit versions are rejected.
 
 ## Loading Indicator Gallery
 
@@ -42,12 +57,12 @@ Four soft loops form a flower. The shape stays still while a single light trace
 moves along its outline.
 
 <p align="center">
-  <img src="assets/four-petals.gif" width="160" alt="Four-petal loading indicator with a gray outline and a moving blue trace" />
+  <img src="examples/loading-indicators/assets/four-petals.gif" width="160" alt="Four-petal loading indicator with a gray outline and a moving blue trace" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-lines-only.gif" width="160" alt="Only the moving blue trace of the four-petal design" />
+  <img src="examples/loading-indicators/assets/four-petals-lines-only.gif" width="160" alt="Only the moving blue trace of the four-petal design" />
 </p>
 
-[View in browser](loading-indicator.html)
+[View in browser](examples/loading-indicators/loading-indicator.html)
 
 ---
 
@@ -57,12 +72,12 @@ The flower slowly rotates around its vertical (Y) axis. A light trace travels
 along the outline to emphasize its depth.
 
 <p align="center">
-  <img src="assets/four-petals-360.gif" width="160" alt="Four-petal loading indicator with an outline, slowly rotating through 360 degrees" />
+  <img src="examples/loading-indicators/assets/four-petals-360.gif" width="160" alt="Four-petal loading indicator with an outline, slowly rotating through 360 degrees" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-360-lines-only.gif" width="160" alt="Only the moving blue trace of the rotating four-petal design" />
+  <img src="examples/loading-indicators/assets/four-petals-360-lines-only.gif" width="160" alt="Only the moving blue trace of the rotating four-petal design" />
 </p>
 
-[View in browser](loading-indicator-360.html)
+[View in browser](examples/loading-indicators/loading-indicator-360.html)
 
 ---
 
@@ -72,12 +87,12 @@ Two flower planes intersect at right angles and rotate together through 360°.
 A separate, slightly offset light trace moves along each plane.
 
 <p align="center">
-  <img src="assets/four-petals-crossed-360.gif" width="160" alt="Two intersecting four-petal planes with outlines and moving light traces" />
+  <img src="examples/loading-indicators/assets/four-petals-crossed-360.gif" width="160" alt="Two intersecting four-petal planes with outlines and moving light traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-crossed-360-lines-only.gif" width="160" alt="Only the moving blue traces of the two rotating intersecting planes" />
+  <img src="examples/loading-indicators/assets/four-petals-crossed-360-lines-only.gif" width="160" alt="Only the moving blue traces of the two rotating intersecting planes" />
 </p>
 
-[View in browser](loading-indicator-crossed-360.html)
+[View in browser](examples/loading-indicators/loading-indicator-crossed-360.html)
 
 ---
 
@@ -87,12 +102,12 @@ Three flower planes form an orthogonal cross. They remain rigidly aligned and
 rotate together around a space diagonal.
 
 <p align="center">
-  <img src="assets/four-petals-triad-360.gif" width="160" alt="Three orthogonal four-petal planes with outlines and moving light traces" />
+  <img src="examples/loading-indicators/assets/four-petals-triad-360.gif" width="160" alt="Three orthogonal four-petal planes with outlines and moving light traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-triad-360-lines-only.gif" width="160" alt="Only the moving blue traces of the three rotating planes" />
+  <img src="examples/loading-indicators/assets/four-petals-triad-360-lines-only.gif" width="160" alt="Only the moving blue traces of the three rotating planes" />
 </p>
 
-[View in browser](loading-indicator-triad-360.html)
+[View in browser](examples/loading-indicators/loading-indicator-triad-360.html)
 
 ---
 
@@ -103,12 +118,12 @@ the orthogonal three-plane cross. All seven planes remain rigidly aligned and
 rotate together around a space diagonal.
 
 <p align="center">
-  <img src="assets/four-petals-octahedral-360.gif" width="160" alt="Seven symmetrically arranged four-petal planes with outlines and moving blue traces" />
+  <img src="examples/loading-indicators/assets/four-petals-octahedral-360.gif" width="160" alt="Seven symmetrically arranged four-petal planes with outlines and moving blue traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-octahedral-360-lines-only.gif" width="160" alt="Only the moving blue traces of the seven rotating planes" />
+  <img src="examples/loading-indicators/assets/four-petals-octahedral-360-lines-only.gif" width="160" alt="Only the moving blue traces of the seven rotating planes" />
 </p>
 
-[View in browser](loading-indicator-octahedral-360.html)
+[View in browser](examples/loading-indicators/loading-indicator-octahedral-360.html)
 
 ---
 
@@ -119,9 +134,9 @@ the 13-plane symmetric arrangement. All planes stay rigidly aligned as they
 rotate together through 360°.
 
 <p align="center">
-  <img src="assets/four-petals-cubic-360.gif" width="160" alt="Thirteen symmetrically arranged four-petal planes with outlines and moving blue traces" />
+  <img src="examples/loading-indicators/assets/four-petals-cubic-360.gif" width="160" alt="Thirteen symmetrically arranged four-petal planes with outlines and moving blue traces" />
   &nbsp;&nbsp;
-  <img src="assets/four-petals-cubic-360-lines-only.gif" width="160" alt="Only the moving blue traces of the thirteen rotating planes" />
+  <img src="examples/loading-indicators/assets/four-petals-cubic-360-lines-only.gif" width="160" alt="Only the moving blue traces of the thirteen rotating planes" />
 </p>
 
-[View in browser](loading-indicator-cubic-360.html)
+[View in browser](examples/loading-indicators/loading-indicator-cubic-360.html)

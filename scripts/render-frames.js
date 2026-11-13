@@ -3,7 +3,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { chromium } = require("playwright");
-const { validateScene } = require("../mascot-motion.js");
+const { validateScene } = require("../src/runtime/mascot-motion.js");
+const { requireChromium } = require("./browser-availability.js");
 const { parseOptions, readScene } = require("./cli-utils.js");
 const { resolveSceneAssets } = require("./scene-assets.js");
 
@@ -43,18 +44,23 @@ function makeContactSheet(progress, framePaths, scene, outputPath) {
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">` +
     `${cells}</svg>`;
   fs.writeFileSync(outputPath, svg);
+  return { width, height };
 }
 
 async function main() {
-  const options = parseOptions(process.argv.slice(2), ["scene", "anim", "at", "out"]);
+  const options = parseOptions(process.argv.slice(2), ["scene", "anim", "at", "out", "debug"], ["debug"]);
   if (options.help) {
-    console.log("Usage: npm run frames -- --scene path/to/scene.json --anim idle --at 0,0.25,0.5,0.75,1 [--out frames]");
+    console.log("Usage: npm run frames -- --scene path/to/scene.json --anim idle --at 0,0.25,0.5,0.75,1 [--out frames] [--debug]");
     return;
   }
   if (!options.scene || !options.anim) throw new Error("required options: --scene and --anim");
+  requireChromium();
 
   const { scene: rawScene, scenePath } = readScene(options.scene);
-  const validatedScene = validateScene(rawScene);
+  const validatedScene = validateScene({
+    ...rawScene,
+    debug: options.debug === true || rawScene.debug === true,
+  });
   const animation = validatedScene.animations[options.anim];
   if (!animation) throw new Error(`unknown animation "${options.anim}"`);
   const progress = options.at ? parseProgressList(options.at) : DEFAULT_PROGRESS;
@@ -73,7 +79,7 @@ async function main() {
     await page.setContent(
       `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#15161e}#stage{position:relative;width:${scene.width}px;height:${scene.height}px;overflow:visible}</style><div id="stage"></div>`,
     );
-    await page.addScriptTag({ path: path.resolve(__dirname, "../mascot-motion.js") });
+    await page.addScriptTag({ path: path.resolve(__dirname, "../src/runtime/mascot-motion.js") });
     await page.evaluate(
       ({ config, animationName }) => {
         window.__mascotMotion = MascotMotion.mount(document.querySelector("#stage"), config);
@@ -96,9 +102,20 @@ async function main() {
     }
 
     const contactSheetPath = path.join(outputDirectory, "contact-sheet.svg");
-    makeContactSheet(progress, framePaths, scene, contactSheetPath);
+    const dimensions = makeContactSheet(progress, framePaths, scene, contactSheetPath);
+    const contactSheetPngPath = path.join(outputDirectory, "contact-sheet.png");
+    const contactPage = await browser.newPage({
+      viewport: { width: dimensions.width, height: dimensions.height },
+    });
+    await contactPage.setContent('<!doctype html><meta charset="utf-8"><img id="contact-sheet" style="display:block">');
+    await contactPage.locator("#contact-sheet").evaluate((image, dataUrl) => {
+      image.src = dataUrl;
+      return image.decode();
+    }, `data:image/svg+xml;base64,${fs.readFileSync(contactSheetPath).toString("base64")}`);
+    await contactPage.locator("#contact-sheet").screenshot({ path: contactSheetPngPath });
+    await contactPage.close();
     console.log(`Rendered ${framePaths.length} frames to ${outputDirectory}`);
-    console.log(`Contact sheet: ${contactSheetPath}`);
+    console.log(`Contact sheets: ${contactSheetPngPath} (PNG), ${contactSheetPath} (SVG)`);
   } finally {
     await browser.close();
   }

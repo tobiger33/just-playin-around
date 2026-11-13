@@ -15,7 +15,7 @@
   verification checkboxes as evidence.
 
 When asked to add animation to code or animate a mascot, inspect the target
-project and use `mascot-motion.js` only when it fits the existing stack.
+project and use `src/runtime/mascot-motion.js` only when it fits the existing stack.
 
 ## Work from code, artwork, or project context
 
@@ -38,7 +38,7 @@ project and use `mascot-motion.js` only when it fits the existing stack.
   Preserve the original artwork; never invent movable limbs or ask the user to
   mark shapes as a prerequisite. If a necessary visual distinction cannot be
   inferred, use whole-image motion and explain the limitation.
-- Choose an implementation that fits the target: use `mascot-motion.js` for
+- Choose an implementation that fits the target: use `src/runtime/mascot-motion.js` for
   compatible DOM image-layer scenes; otherwise use the project's native
   animation APIs and existing dependencies. Avoid adding dependencies when the
   current stack can do the job.
@@ -82,11 +82,12 @@ project and use `mascot-motion.js` only when it fits the existing stack.
 
 ## Runtime API
 
-Load the runtime with `<script src="mascot-motion.js"></script>`, then mount a
+Load the runtime with `<script src="src/runtime/mascot-motion.js"></script>`, then mount a
 scene:
 
 ```js
 const mascot = MascotMotion.mount(document.querySelector("#stage"), {
+  version: 1,
   width: 512,
   height: 512,
   perspective: 800,
@@ -143,7 +144,7 @@ preview artwork.
 Install the pinned development dependencies and browser once:
 
 ```sh
-npm install
+npm ci
 npx playwright install chromium
 ```
 
@@ -153,11 +154,29 @@ Validate a scene and its local image paths/dimensions:
 npm run validate-scene -- --scene path/to/scene.json
 ```
 
-Render deterministic frames and a labeled SVG contact sheet:
+Render deterministic frames and labeled PNG/SVG contact sheets:
 
 ```sh
 npm run frames -- --scene path/to/scene.json --anim idle --at 0,0.25,0.5,0.75,1
 ```
+
+Add `--debug` to render pivots and layer bounds into the frames. Generated
+output under `frames/` is Git-ignored; `npm run verify` writes its contact
+sheet to `frames/verify/contact-sheet.png` and prints the exact path.
+
+Check for out-of-canvas layers, extreme transforms, static tracks, and layers
+without tracks:
+
+```sh
+npm run check-motion -- --scene path/to/scene.json
+```
+
+The canvas check uses transformed layer rectangles, so transparent padding can
+make a boundary warning conservative.
+
+Set `SKIP_BROWSER=1` to skip browser tests and rendering when Chromium is not
+installed. Otherwise, missing Chromium is reported with the install command
+`npx playwright install chromium`.
 
 Run the runtime tests, fixture validation, and frame render together:
 
@@ -165,7 +184,7 @@ Run the runtime tests, fixture validation, and frame render together:
 npm run verify
 ```
 
-The verification command prints the contact-sheet path. `MascotMotion` is
+The verification command prints the PNG and SVG contact-sheet paths. `MascotMotion` is
 available as a browser global and a CommonJS export for Node-based validation.
 
 ## Delivery checks
