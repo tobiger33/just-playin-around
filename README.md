@@ -1,8 +1,28 @@
-# Four Petals — Loading Indicators
+# Motion Lab
 
-A collection of minimalist loading indicators. Each design has a standalone
-HTML demo and two animated previews: the complete outline on the left and only
-the moving blue traces on the right.
+A lightweight, agent-friendly toolkit for building expressive mascot motion,
+alongside a gallery of loading indicator experiments.
+
+## Mascot Motion Toolkit
+
+Upload a single image for whole-character movement or transparent image parts
+for articulated gestures. Preview motion in 2D and CSS 3D, set joint pivots,
+then copy an animation brief for your coding agent or download the scene
+configuration.
+
+- [Open Mascot Motion Studio](mascot-motion-studio.html)
+- [Read the coding-agent workflow](AGENTS.md)
+- [Use the animation runtime](mascot-motion.js)
+
+The runtime supports keyframed translation, squash-and-stretch, opacity,
+rotation on all three axes, perspective, parented image layers, and reduced
+motion preferences. High-quality articulation works best with separated,
+transparent artwork parts.
+
+## Loading Indicator Gallery
+
+Each loading indicator has a standalone HTML demo and two animated previews:
+the complete outline on the left and only the moving blue traces on the right.
 
 ## Gallery
 

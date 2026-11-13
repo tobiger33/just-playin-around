@@ -1,0 +1,907 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Upload mascot artwork, preview expressive 2D and 3D motion, and create an animation brief for your coding agent."
+    />
+    <title>Mascot Motion Studio</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: #eef0f6;
+        background: #101117;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        --panel: #191b24;
+        --panel-raised: #20232e;
+        --line: #303440;
+        --muted: #a4a8b7;
+        --accent: #9c8cff;
+        --accent-strong: #b7aaff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        background:
+          radial-gradient(ellipse at 70% 22%, rgb(91 71 172 / 13%), transparent 34rem),
+          #101117;
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        min-height: 2.65rem;
+        padding: 0.65rem 0.85rem;
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        color: inherit;
+        background: var(--panel-raised);
+        cursor: pointer;
+        transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+      }
+
+      button:hover {
+        border-color: #77718d;
+        background: #292b39;
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+
+      button:focus-visible,
+      input:focus-visible,
+      textarea:focus-visible {
+        outline: 2px solid var(--accent-strong);
+        outline-offset: 2px;
+      }
+
+      .app {
+        width: min(1120px, calc(100% - 2rem));
+        margin: 0 auto;
+        padding: 2.5rem 0 3rem;
+      }
+
+      header {
+        max-width: 700px;
+        margin-bottom: 1.8rem;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.55rem;
+        color: var(--accent-strong);
+        font-size: 0.72rem;
+        font-weight: 750;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        letter-spacing: -0.045em;
+        line-height: 1.05;
+      }
+
+      .lede {
+        max-width: 620px;
+        margin: 0.8rem 0 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(270px, 360px) minmax(0, 1fr);
+        gap: 1rem;
+        align-items: stretch;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 1.2rem;
+        background: linear-gradient(160deg, rgb(29 31 42 / 96%), rgb(22 24 31 / 96%));
+        box-shadow: 0 20px 70px rgb(0 0 0 / 20%);
+      }
+
+      .controls {
+        display: grid;
+        gap: 1.2rem;
+        padding: 1.15rem;
+      }
+
+      .section {
+        display: grid;
+        gap: 0.65rem;
+      }
+
+      .section-heading {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.75rem;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: 0.93rem;
+        letter-spacing: -0.01em;
+      }
+
+      .hint,
+      .count,
+      .status {
+        color: var(--muted);
+        font-size: 0.77rem;
+        line-height: 1.5;
+      }
+
+      .hint {
+        margin: 0;
+      }
+
+      .upload-row,
+      .export-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+      }
+
+      .primary {
+        border-color: transparent;
+        color: #161321;
+        background: linear-gradient(135deg, #c0b4ff, #9281f4);
+        font-weight: 750;
+      }
+
+      .primary:hover {
+        border-color: transparent;
+        background: linear-gradient(135deg, #d0c8ff, #a698ff);
+      }
+
+      .file-button {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .file-button input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+      .layer-list {
+        display: grid;
+        gap: 0.4rem;
+        max-height: 9.5rem;
+        margin: 0;
+        padding: 0;
+        overflow: auto;
+        list-style: none;
+      }
+
+      .layer-item button {
+        display: flex;
+        width: 100%;
+        min-height: 2.35rem;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.45rem 0.65rem;
+        text-align: left;
+        font-size: 0.8rem;
+      }
+
+      .layer-item button[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: rgb(156 140 255 / 12%);
+      }
+
+      .layer-pivot {
+        color: var(--muted);
+        font-size: 0.72rem;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .motion-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+      }
+
+      .motion-grid button {
+        min-height: 3rem;
+        padding: 0.55rem;
+        text-align: left;
+      }
+
+      .motion-grid button[aria-pressed="true"] {
+        border-color: var(--accent);
+        background: rgb(156 140 255 / 15%);
+      }
+
+      .motion-grid strong,
+      .motion-grid span {
+        display: block;
+      }
+
+      .motion-grid strong {
+        font-size: 0.78rem;
+      }
+
+      .motion-grid span {
+        margin-top: 0.2rem;
+        color: var(--muted);
+        font-size: 0.67rem;
+      }
+
+      label[for="brief"] {
+        font-size: 0.8rem;
+        font-weight: 650;
+      }
+
+      textarea {
+        width: 100%;
+        min-height: 5.2rem;
+        resize: vertical;
+        padding: 0.7rem;
+        border: 1px solid var(--line);
+        border-radius: 0.75rem;
+        color: inherit;
+        background: #11131a;
+        font-size: 0.8rem;
+        line-height: 1.5;
+      }
+
+      .export-row button {
+        flex: 1;
+        font-size: 0.77rem;
+      }
+
+      .preview-panel {
+        display: grid;
+        min-height: 600px;
+        grid-template-rows: auto 1fr auto;
+        padding: 1rem;
+      }
+
+      .preview-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.25rem 0.25rem 0.9rem;
+      }
+
+      .preview-toolbar .status {
+        margin: 0;
+        text-align: right;
+      }
+
+      .stage-wrap {
+        display: grid;
+        min-height: 0;
+        place-items: center;
+        overflow: hidden;
+        border: 1px solid #2c2e38;
+        border-radius: 0.95rem;
+        background-color: #15161e;
+        background-image:
+          linear-gradient(45deg, #1d1f28 25%, transparent 25%),
+          linear-gradient(-45deg, #1d1f28 25%, transparent 25%),
+          linear-gradient(45deg, transparent 75%, #1d1f28 75%),
+          linear-gradient(-45deg, transparent 75%, #1d1f28 75%);
+        background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+        background-size: 20px 20px;
+      }
+
+      .stage-box {
+        position: relative;
+        width: min(74%, 440px);
+        aspect-ratio: 1;
+        perspective: 850px;
+        touch-action: manipulation;
+      }
+
+      #stage {
+        width: 100%;
+        height: 100%;
+      }
+
+      .empty-state {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-content: center;
+        gap: 0.5rem;
+        padding: 1.25rem;
+        color: var(--muted);
+        text-align: center;
+        pointer-events: none;
+      }
+
+      .empty-state[hidden] {
+        display: none;
+      }
+
+      .empty-state strong {
+        color: #d7d9e3;
+        font-size: 0.9rem;
+      }
+
+      .empty-state span {
+        max-width: 270px;
+        font-size: 0.76rem;
+        line-height: 1.5;
+      }
+
+      .pivot-marker {
+        position: absolute;
+        z-index: 20;
+        display: none;
+        width: 15px;
+        height: 15px;
+        border: 2px solid white;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 0 4px rgb(156 140 255 / 25%);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+      }
+
+      .preview-footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.8rem 0.25rem 0.1rem;
+        color: var(--muted);
+        font-size: 0.72rem;
+        line-height: 1.5;
+      }
+
+      .preview-footer span:last-child {
+        text-align: right;
+      }
+
+      .error {
+        color: #ff9a9a;
+      }
+
+      @media (max-width: 760px) {
+        .app {
+          width: min(620px, calc(100% - 1.2rem));
+          padding-top: 1.4rem;
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-panel {
+          min-height: 440px;
+          grid-row: 1;
+        }
+
+        .stage-box {
+          width: min(78%, 360px);
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <header>
+        <p class="eyebrow">AI-assisted character animation</p>
+        <h1>Mascot Motion Studio</h1>
+        <p class="lede">
+          Bring your own artwork. Preview expressive movement in 2D and 3D, then give your
+          coding agent a precise animation brief and the reusable runtime.
+        </p>
+      </header>
+
+      <div class="workspace">
+        <aside class="panel controls" aria-label="Animation controls">
+          <section class="section">
+            <div class="section-heading">
+              <h2>1. Add artwork</h2>
+              <span class="count" id="layer-count">0 parts</span>
+            </div>
+            <p class="hint">
+              Upload one image for whole-character motion, or several transparent parts for
+              articulated gestures.
+            </p>
+            <div class="upload-row">
+              <label class="file-button primary">
+                Upload image parts
+                <input id="file-input" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" multiple />
+              </label>
+              <button id="sample-button" type="button">Load sample</button>
+            </div>
+            <p class="hint">
+              For best alignment, export all transparent PNG parts on the same canvas.
+            </p>
+            <ul class="layer-list" id="layer-list" aria-label="Uploaded image parts"></ul>
+          </section>
+
+          <section class="section">
+            <div class="section-heading">
+              <h2>2. Preview a motion</h2>
+              <span class="count">2D + 3D</span>
+            </div>
+            <div class="motion-grid" id="motion-grid">
+              <button type="button" data-motion="idle" aria-pressed="false">
+                <strong>Idle</strong><span>Breath and settle</span>
+              </button>
+              <button type="button" data-motion="hop" aria-pressed="false">
+                <strong>Anticipate + hop</strong><span>Squash, launch, land</span>
+              </button>
+              <button type="button" data-motion="look3d" aria-pressed="false">
+                <strong>Look around</strong><span>Turn through depth</span>
+              </button>
+              <button type="button" data-motion="celebrate" aria-pressed="false">
+                <strong>Celebrate</strong><span>Flap and rebound</span>
+              </button>
+            </div>
+          </section>
+
+          <section class="section">
+            <label for="brief">3. Describe the animation for your coding agent</label>
+            <textarea id="brief">Give the mascot a distinctive personality. Add anticipation, clear poses, overlapping follow-through, and a satisfying settle. Keep the loop seamless.</textarea>
+            <div class="export-row">
+              <button class="primary" id="copy-brief" type="button">Copy agent brief</button>
+              <button id="download-scene" type="button">Download scene JSON</button>
+            </div>
+            <p class="status" id="message" aria-live="polite">
+              Load artwork to preview motion and prepare an agent-ready brief.
+            </p>
+          </section>
+        </aside>
+
+        <section class="panel preview-panel" aria-label="Live mascot preview">
+          <div class="preview-toolbar">
+            <h2>Live preview</h2>
+            <p class="status" id="preview-status">No artwork loaded</p>
+          </div>
+          <div class="stage-wrap" id="stage-wrap">
+            <div class="stage-box" id="stage-box">
+              <div id="stage"></div>
+              <div class="empty-state" id="empty-state">
+                <strong>Your mascot appears here</strong>
+                <span>Upload layered art, or load the sample to try the motion controls.</span>
+              </div>
+              <div class="pivot-marker" id="pivot-marker"></div>
+            </div>
+          </div>
+          <div class="preview-footer">
+            <span id="pivot-help">Select a part, then click the preview to set its pivot.</span>
+            <span>Reduced-motion preferences are respected.</span>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="mascot-motion.js"></script>
+    <script>
+      (() => {
+        const fileInput = document.querySelector("#file-input");
+        const layerList = document.querySelector("#layer-list");
+        const layerCount = document.querySelector("#layer-count");
+        const stage = document.querySelector("#stage");
+        const stageBox = document.querySelector("#stage-box");
+        const emptyState = document.querySelector("#empty-state");
+        const marker = document.querySelector("#pivot-marker");
+        const message = document.querySelector("#message");
+        const previewStatus = document.querySelector("#preview-status");
+        const brief = document.querySelector("#brief");
+        const layers = [];
+        let selectedLayer = null;
+        let controller = null;
+        let activeMotion = "idle";
+
+        const motions = {
+          idle: {
+            duration: 2.4,
+            loop: true,
+            easing: "easeInOut",
+            tracks: {},
+          },
+          hop: {
+            duration: 1.35,
+            loop: true,
+            easing: "easeInOut",
+            tracks: {},
+          },
+          look3d: {
+            duration: 2.8,
+            loop: true,
+            easing: "easeInOut",
+            tracks: {},
+          },
+          celebrate: {
+            duration: 1.8,
+            loop: true,
+            easing: "easeInOut",
+            tracks: {},
+          },
+        };
+
+        function slug(value, fallback) {
+          const result = value
+            .replace(/\.[^.]+$/, "")
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/^-|-$/g, "");
+          return result || fallback;
+        }
+
+        function addLayer(file, src, origin = [0.5, 0.5]) {
+          const base = slug(file.name, `part-${layers.length + 1}`);
+          let id = base;
+          let suffix = 2;
+          while (layers.some((layer) => layer.id === id)) id = `${base}-${suffix++}`;
+          layers.push({ id, name: file.name, src, origin, file });
+          selectedLayer = id;
+        }
+
+        function keyframes(values) {
+          return values.map(([at, state, easing]) => ({ at, ...state, ...(easing ? { easing } : {}) }));
+        }
+
+        function createTracks() {
+          const body = layers.find((layer) => /body|torso|core|mascot/.test(layer.id)) || layers[0];
+          const head = layers.find((layer) => /head|face/.test(layer.id));
+          const wings = layers.filter((layer) => /wing|arm|hand|flipper/.test(layer.id));
+          const other = layers.filter((layer) => layer !== body && layer !== head && !wings.includes(layer));
+          const tracks = { idle: {}, hop: {}, look3d: {}, celebrate: {} };
+
+          if (body) {
+            tracks.idle[body.id] = keyframes([
+              [0, { y: 0, rotateZ: 0, scaleY: 1 }],
+              [0.5, { y: -4, rotateZ: 0.6, scaleY: 1.012 }],
+              [1, { y: 0, rotateZ: 0, scaleY: 1 }],
+            ]);
+            tracks.hop[body.id] = keyframes([
+              [0, { y: 0, scaleX: 1, scaleY: 1, rotateZ: 0 }],
+              [0.16, { y: 7, scaleX: 1.08, scaleY: 0.88, rotateZ: -2 }, "easeOutCubic"],
+              [0.44, { y: -48, scaleX: 0.95, scaleY: 1.12, rotateZ: 2 }, "backOut"],
+              [0.7, { y: -8, scaleX: 1.04, scaleY: 0.96, rotateZ: -1 }],
+              [0.84, { y: 2, scaleX: 1.06, scaleY: 0.92 }],
+              [1, { y: 0, scaleX: 1, scaleY: 1, rotateZ: 0 }],
+            ]);
+            tracks.look3d[body.id] = keyframes([
+              [0, { rotateY: -18, rotateZ: -2 }],
+              [0.25, { rotateY: 0, rotateZ: 0 }],
+              [0.5, { rotateY: 18, rotateZ: 2 }],
+              [0.75, { rotateY: 0, rotateZ: 0 }],
+              [1, { rotateY: -18, rotateZ: -2 }],
+            ]);
+            tracks.celebrate[body.id] = keyframes([
+              [0, { y: 0, rotateZ: 0, scaleX: 1, scaleY: 1 }],
+              [0.18, { y: 7, rotateZ: -4, scaleX: 1.1, scaleY: 0.88 }],
+              [0.48, { y: -42, rotateZ: 4, scaleX: 0.94, scaleY: 1.12 }, "backOut"],
+              [0.7, { y: -18, rotateZ: -3, scaleX: 1.05, scaleY: 0.96 }],
+              [1, { y: 0, rotateZ: 0, scaleX: 1, scaleY: 1 }],
+            ]);
+          }
+
+          if (head) {
+            tracks.idle[head.id] = keyframes([[0, { rotateZ: 0 }], [0.5, { rotateZ: -2 }], [1, { rotateZ: 0 }]]);
+            tracks.hop[head.id] = keyframes([
+              [0, { y: 0, rotateZ: 0 }],
+              [0.2, { y: 4, rotateZ: 3 }],
+              [0.45, { y: -54, rotateZ: -4 }],
+              [0.73, { y: -13, rotateZ: 2 }],
+              [1, { y: 0, rotateZ: 0 }],
+            ]);
+            tracks.look3d[head.id] = keyframes([
+              [0, { rotateY: -24, rotateZ: -4 }],
+              [0.24, { rotateY: -24, rotateZ: -4 }],
+              [0.5, { rotateY: 24, rotateZ: 4 }],
+              [0.76, { rotateY: 24, rotateZ: 4 }],
+              [1, { rotateY: -24, rotateZ: -4 }],
+            ]);
+            tracks.celebrate[head.id] = keyframes([
+              [0, { y: 0, rotateZ: 0 }],
+              [0.2, { y: 2, rotateZ: -8 }],
+              [0.48, { y: -48, rotateZ: 7 }],
+              [0.72, { y: -20, rotateZ: -4 }],
+              [1, { y: 0, rotateZ: 0 }],
+            ]);
+          }
+
+          wings.forEach((wing, index) => {
+            const sign = /left/.test(wing.id) ? -1 : /right/.test(wing.id) ? 1 : index % 2 ? 1 : -1;
+            tracks.idle[wing.id] = keyframes([[0, { rotateZ: sign * -2 }], [0.5, { rotateZ: sign * 2 }], [1, { rotateZ: sign * -2 }]]);
+            tracks.hop[wing.id] = keyframes([
+              [0, { rotateZ: 0 }],
+              [0.2, { rotateZ: sign * -12 }],
+              [0.48, { rotateZ: sign * 24 }],
+              [0.72, { rotateZ: sign * 12 }],
+              [1, { rotateZ: 0 }],
+            ]);
+            tracks.look3d[wing.id] = keyframes([
+              [0, { rotateY: -8, rotateZ: sign * -4 }],
+              [0.5, { rotateY: 8, rotateZ: sign * 4 }],
+              [1, { rotateY: -8, rotateZ: sign * -4 }],
+            ]);
+            tracks.celebrate[wing.id] = keyframes([
+              [0, { rotateZ: sign * -8 }],
+              [0.16, { rotateZ: sign * 30 }],
+              [0.34, { rotateZ: sign * -22 }],
+              [0.54, { rotateZ: sign * 26 }],
+              [0.76, { rotateZ: sign * -10 }],
+              [1, { rotateZ: sign * -8 }],
+            ]);
+          });
+
+          other.forEach((part, index) => {
+            const delay = index % 2 ? 0.08 : 0;
+            tracks.idle[part.id] = keyframes([[0, { y: 0 }], [0.5, { y: -3 }], [1, { y: 0 }]]);
+            tracks.hop[part.id] = keyframes([
+              [0, { y: 0, rotateZ: 0 }],
+              [0.22 + delay, { y: 7, rotateZ: index % 2 ? 3 : -3 }],
+              [0.48 + delay, { y: -47, rotateZ: index % 2 ? -4 : 4 }],
+              [0.74 + delay, { y: -8, rotateZ: 2 }],
+              [1, { y: 0, rotateZ: 0 }],
+            ]);
+            tracks.look3d[part.id] = keyframes([
+              [0, { rotateY: -18 }],
+              [0.5, { rotateY: 18 }],
+              [1, { rotateY: -18 }],
+            ]);
+            tracks.celebrate[part.id] = tracks.hop[part.id];
+          });
+
+          return Object.fromEntries(
+            Object.entries(motions).map(([name, animation]) => [
+              name,
+              { ...animation, tracks: tracks[name] },
+            ]),
+          );
+        }
+
+        function sceneConfig() {
+          const body = layers.find((layer) => /body|torso|core|mascot/.test(layer.id)) || layers[0];
+          return {
+            width: 512,
+            height: 512,
+            perspective: 850,
+            label: "Mascot preview",
+            layers: layers.map((layer, index) => ({
+              id: layer.id,
+              src: layer.src,
+              origin: layer.origin,
+              parent: layer.id === body.id ? null : body.id,
+              zIndex: index,
+            })),
+            animations: createTracks(),
+          };
+        }
+
+        function renderLayerList() {
+          layerList.replaceChildren();
+          for (const layer of layers) {
+            const item = document.createElement("li");
+            item.className = "layer-item";
+            const button = document.createElement("button");
+            button.type = "button";
+            button.setAttribute("aria-pressed", String(layer.id === selectedLayer));
+            const name = document.createElement("span");
+            name.textContent = layer.name;
+            const pivot = document.createElement("span");
+            pivot.className = "layer-pivot";
+            pivot.textContent = `pivot ${Math.round(layer.origin[0] * 100)}%, ${Math.round(layer.origin[1] * 100)}%`;
+            button.append(name, pivot);
+            button.addEventListener("click", () => {
+              selectedLayer = layer.id;
+              renderLayerList();
+              positionMarker();
+            });
+            item.append(button);
+            layerList.append(item);
+          }
+          layerCount.textContent = `${layers.length} ${layers.length === 1 ? "part" : "parts"}`;
+        }
+
+        function positionMarker() {
+          const layer = layers.find((item) => item.id === selectedLayer);
+          if (!layer) {
+            marker.style.display = "none";
+            return;
+          }
+          marker.style.display = "block";
+          marker.style.left = `${layer.origin[0] * 100}%`;
+          marker.style.top = `${layer.origin[1] * 100}%`;
+        }
+
+        function updatePreview() {
+          if (controller) {
+            controller.destroy();
+            controller = null;
+          }
+          if (!layers.length) {
+            emptyState.hidden = false;
+            previewStatus.textContent = "No artwork loaded";
+            marker.style.display = "none";
+            return;
+          }
+          emptyState.hidden = true;
+          controller = MascotMotion.mount(stage, sceneConfig());
+          controller.play(activeMotion);
+          previewStatus.textContent = `${layers.length} ${layers.length === 1 ? "part" : "parts"} · ${activeMotion}`;
+          positionMarker();
+        }
+
+        function svgPart(content) {
+          const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${content}</svg>`;
+          return new File([svg], `sample-${slug(content.slice(0, 30), "part")}.svg`, { type: "image/svg+xml" });
+        }
+
+        function loadSample() {
+          if (controller) controller.destroy();
+          for (const layer of layers) URL.revokeObjectURL(layer.src);
+          layers.length = 0;
+          const sample = [
+            [svgPart('<ellipse cx="256" cy="292" rx="118" ry="136" fill="#6ed6c1"/>'), "body", [0.5, 0.57]],
+            [svgPart('<path d="M167 265c-74-52-108 18-61 76 25 31 59 39 85 17z" fill="#38b49e"/>'), "wing-left", [0.34, 0.61]],
+            [svgPart('<path d="M345 265c74-52 108 18 61 76-25 31-59 39-85 17z" fill="#38b49e"/>'), "wing-right", [0.66, 0.61]],
+            [svgPart('<ellipse cx="256" cy="180" rx="102" ry="94" fill="#84e0cf"/>'), "head", [0.5, 0.4]],
+            [svgPart('<path d="m239 196 17 29 18-29z" fill="#f3a955"/>'), "beak", [0.5, 0.43]],
+            [svgPart('<ellipse cx="222" cy="179" rx="13" ry="18" fill="#202738"/><circle cx="226" cy="172" r="4" fill="white"/>'), "eye-left", [0.44, 0.36]],
+            [svgPart('<ellipse cx="290" cy="179" rx="13" ry="18" fill="#202738"/><circle cx="294" cy="172" r="4" fill="white"/>'), "eye-right", [0.56, 0.36]],
+          ];
+          for (const [file, name, origin] of sample) {
+            const src = URL.createObjectURL(file);
+            addLayer(new File([file], `${name}.svg`, { type: "image/svg+xml" }), src, origin);
+          }
+          selectedLayer = "body";
+          activeMotion = "idle";
+          renderLayerList();
+          updatePreview();
+          message.textContent = "Sample loaded. Select a part and click the preview to adjust its pivot.";
+        }
+
+        function handleFiles(files) {
+          const selectedFiles = Array.from(files);
+          if (!selectedFiles.length) return;
+          const objectUrls = selectedFiles.map((file) => URL.createObjectURL(file));
+          selectedFiles.forEach((file, index) => addLayer(file, objectUrls[index]));
+          activeMotion = "idle";
+          renderLayerList();
+          updatePreview();
+          message.textContent =
+            "Artwork loaded. For independent gestures, use transparent parts and set each pivot at its joint.";
+        }
+
+        function serializeScene() {
+          const config = sceneConfig();
+          config.layers = config.layers.map((layer, index) => ({
+            ...layer,
+            src: `assets/${layers[index].name}`,
+          }));
+          return JSON.stringify(config, null, 2);
+        }
+
+        fileInput.addEventListener("change", (event) => {
+          try {
+            handleFiles(event.target.files);
+            event.target.value = "";
+          } catch (error) {
+            message.textContent = error instanceof Error ? error.message : String(error);
+            message.classList.add("error");
+          }
+        });
+
+        document.querySelector("#sample-button").addEventListener("click", () => {
+          try {
+            loadSample();
+            message.classList.remove("error");
+          } catch (error) {
+            message.textContent = error instanceof Error ? error.message : String(error);
+            message.classList.add("error");
+          }
+        });
+
+        document.querySelector("#motion-grid").addEventListener("click", (event) => {
+          const button = event.target.closest("button[data-motion]");
+          if (!button) return;
+          activeMotion = button.dataset.motion;
+          document.querySelectorAll("#motion-grid button").forEach((item) => {
+            item.setAttribute("aria-pressed", String(item === button));
+          });
+          if (controller) controller.play(activeMotion);
+          previewStatus.textContent = layers.length
+            ? `${layers.length} ${layers.length === 1 ? "part" : "parts"} · ${activeMotion}`
+            : "Load artwork to preview";
+        });
+
+        stageBox.addEventListener("click", (event) => {
+          if (!selectedLayer) return;
+          const rect = stageBox.getBoundingClientRect();
+          const origin = [
+            Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width)),
+            Math.max(0, Math.min(1, (event.clientY - rect.top) / rect.height)),
+          ];
+          const layer = layers.find((item) => item.id === selectedLayer);
+          layer.origin = origin;
+          renderLayerList();
+          updatePreview();
+        });
+
+        stage.addEventListener("mascotmotion:error", (event) => {
+          message.textContent = `Could not load image part "${event.detail.layer}" (${event.detail.src}).`;
+          message.classList.add("error");
+        });
+
+        document.querySelector("#copy-brief").addEventListener("click", async () => {
+          if (!layers.length) {
+            message.textContent = "Upload artwork or load the sample before creating an agent brief.";
+            message.classList.add("error");
+            return;
+          }
+          const assetList = layers.map((layer) => `- assets/${layer.name} (pivot ${layer.origin.map((value) => `${Math.round(value * 100)}%`).join(", ")})`).join("\n");
+          const prompt = [
+            "Create a polished, expressive mascot animation in this project using the MascotMotion runtime in mascot-motion.js.",
+            `Animation direction: ${brief.value.trim() || "Design a distinctive, expressive motion."}`,
+            `Starting preview: ${activeMotion}.`,
+            "Uploaded user-provided artwork parts:",
+            assetList,
+            "Use anticipation, clear poses, overlapping follow-through, and a deliberate settle. Use layered parts for independent gestures and CSS 3D transforms for depth where appropriate. Preserve reduced-motion support and make any looping clip seamless.",
+            "Do not imitate or include another brand's character or artwork. Implement the animation in project code, then preview and validate it in the browser.",
+          ].join("\n\n");
+          try {
+            await navigator.clipboard.writeText(prompt);
+            message.textContent = "Agent brief copied. Paste it into your coding agent with the uploaded artwork available in the project.";
+            message.classList.remove("error");
+          } catch (error) {
+            message.textContent = `Clipboard access failed: ${error instanceof Error ? error.message : String(error)}`;
+            message.classList.add("error");
+          }
+        });
+
+        document.querySelector("#download-scene").addEventListener("click", () => {
+          if (!layers.length) {
+            message.textContent = "Upload artwork or load the sample before exporting a scene.";
+            message.classList.add("error");
+            return;
+          }
+          const blob = new Blob([serializeScene()], { type: "application/json" });
+          const link = document.createElement("a");
+          const url = URL.createObjectURL(blob);
+          link.href = url;
+          link.download = "mascot-motion-scene.json";
+          link.click();
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          message.textContent = "Scene JSON downloaded. Copy your uploaded images into the referenced assets folder.";
+          message.classList.remove("error");
+        });
+      })();
+    </script>
+  </body>
+</html>
