@@ -449,8 +449,8 @@
         <p class="eyebrow">AI-assisted character animation</p>
         <h1>Mascot Motion Studio</h1>
         <p class="lede">
-          Bring your own artwork. Preview expressive movement in 2D and 3D, then give your
-          coding agent a precise animation brief and the reusable runtime.
+          Attach your image directly to your coding agent and describe the motion you want.
+          Use this studio only if you also want to preview artwork or export scene assets.
         </p>
       </header>
 
@@ -458,12 +458,12 @@
         <aside class="panel controls" aria-label="Animation controls">
           <section class="section">
             <div class="section-heading">
-              <h2>1. Add artwork</h2>
+              <h2>1. Optional: preview artwork</h2>
               <span class="count" id="layer-count">0 parts</span>
             </div>
             <p class="hint">
-              Upload one image for whole-character motion, or several transparent parts for
-              articulated gestures.
+              Your coding agent can work from one attached image. Upload here only to preview
+              motion or prepare optional assets; you do not need to mark or split shapes.
             </p>
             <div class="upload-row">
               <label class="file-button primary">
@@ -473,7 +473,7 @@
               <button id="sample-button" type="button">Load sample</button>
             </div>
             <p class="hint">
-              Drop files here too. Transparent PNGs on the same canvas align best. Limit: 25 MB each, 100 MB total.
+              Drop files here too. Multiple transparent parts are optional. Limit: 25 MB each, 100 MB total.
             </p>
             <ul class="layer-list" id="layer-list" aria-label="Uploaded image parts"></ul>
             <div class="upload-row">
@@ -505,9 +505,9 @@
 
           <section class="section">
             <label for="brief">3. Describe the animation for your coding agent</label>
-            <textarea id="brief">Give the mascot a distinctive personality. Add anticipation, clear poses, overlapping follow-through, and a satisfying settle. Keep the loop seamless.</textarea>
+            <textarea id="brief">Give the mascot a distinctive personality with clear poses, anticipation, overlapping follow-through, and a satisfying settle. Keep idle loops seamless; play discrete actions once.</textarea>
             <div class="export-row">
-              <button class="primary" id="copy-brief" type="button">Copy agent brief</button>
+              <button class="primary" id="copy-brief" type="button">Copy coding-agent instructions</button>
               <button id="download-scene" type="button">Scene JSON only</button>
             </div>
             <div class="export-row">
@@ -515,7 +515,7 @@
             </div>
             <textarea id="agent-output" aria-label="Generated agent prompt" readonly hidden></textarea>
             <p class="status" id="message" aria-live="polite">
-              Load artwork to preview motion and prepare an agent-ready brief.
+              Preview upload is optional. Copy instructions and attach your image directly to your coding agent.
             </p>
           </section>
         </aside>
@@ -530,7 +530,7 @@
               <div id="stage"></div>
               <div class="empty-state" id="empty-state">
                 <strong>Your mascot appears here</strong>
-                <span>Upload layered art, or load the sample to try the motion controls.</span>
+                <span>Upload an image here only to preview motion, or load the sample. Your coding agent can use the image attached to your request directly.</span>
               </div>
               <div class="pivot-marker" id="pivot-marker"></div>
             </div>
@@ -575,7 +575,7 @@
           },
           hop: {
             duration: 1.35,
-            loop: true,
+            loop: false,
             easing: "easeInOut",
             tracks: {},
           },
@@ -1231,27 +1231,24 @@
         });
 
         document.querySelector("#copy-brief").addEventListener("click", async () => {
-          if (!layers.length) {
-            setMessage("Upload artwork or load the sample before creating an agent brief.", true);
-            return;
-          }
           const assetList = layers.map((layer) => `- assets/${layer.exportName} (pivot ${layer.origin.map((value) => `${Math.round(value * 100)}%`).join(", ")})`).join("\n");
           const prompt = [
-            "Create a polished, expressive mascot animation in this project using the MascotMotion runtime in mascot-motion.js.",
-            `Animation direction: ${brief.value.trim() || "Design a distinctive, expressive motion."}`,
-            `Starting preview: ${activeMotion}.`,
-            "Uploaded user-provided artwork parts:",
-            assetList,
-            "Extract the Mascot Motion Studio starter bundle into the project before implementing this task so these image paths resolve.",
-            "Use anticipation, clear poses, overlapping follow-through, and a deliberate settle. Use layered parts for independent gestures and CSS 3D transforms for depth where appropriate. Preserve reduced-motion support and make any looping clip seamless.",
-            "Do not imitate or include another brand's character or artwork. Implement the animation in project code, then preview and validate it in the browser.",
+            "Implement the mascot animation in this project. The image attached to my coding-agent request is the source artwork; use it directly. Do not require me to upload it again here, split it into parts, mark shapes, or set pivots.",
+            `Animation direction: ${brief.value.trim() || "Create a distinctive, expressive motion."}`,
+            "Inspect the attached artwork and project, then update the named/existing HTML page in place if there is one. Otherwise, integrate with a suitable existing page or create a standalone HTML page if none fits. Preserve existing behavior.",
+            "Default to animating a flattened image as a whole. Create independently moving parts only when transparent boundaries, source layers, or reliable automatic analysis make separation convincing and useful. Preserve the original artwork and do not invent separate limbs.",
+            "Use mascot-motion.js if it exists and fits the target. For a standalone HTML page or simple motion, prefer compact self-contained HTML/CSS/JavaScript instead of requiring a separate bundle or new dependencies. Make asset paths work in the actual page.",
+            layers.length
+              ? `Optional Studio preview assets (use only if already available in the project; do not require a separate bundle):\n${assetList}\nStarting preview preset: ${activeMotion}.`
+              : "No Studio assets are required; use the image attached directly to my coding-agent request.",
+            "Implement the result in project files, not just a prompt or scene JSON. Preview the actual HTML with the image loaded, confirm visible motion over time, check the loop boundary or one-shot settle, test reduced-motion behavior and controls, and check the browser console. Report the changed files and verification.",
           ].join("\n\n");
           try {
             const copied = await copyText(prompt);
             setMessage(
               copied
-                ? "Agent brief copied. Extract the starter bundle into your project, then paste the brief into your coding agent."
-                : "Clipboard access is unavailable. The generated brief is shown below; select and copy it manually.",
+                ? "Instructions copied. Attach your image directly to your coding agent and paste them with your animation request."
+                : "Clipboard access is unavailable. The instructions are shown below; select and copy them manually.",
               !copied,
             );
           } catch (error) {

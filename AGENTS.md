@@ -3,6 +3,35 @@
 When asked to animate a mascot in this repository, use `mascot-motion.js` as
 the default runtime and follow the workflow below.
 
+## Image-to-animation requests
+
+- Treat an image attached to the user's coding-agent request as the source
+  artwork. The user should not need to upload it again to Mascot Motion Studio,
+  split it into parts, identify shapes, or set pivots.
+- Inspect the image and the existing project first. If the user names an HTML
+  file, update that file in place and preserve its existing content and
+  behavior. Otherwise, integrate with the relevant existing page; create a
+  standalone HTML page only when the project has no suitable target or the user
+  asks for one.
+- Default to animating a single flattened image as a whole. Only create
+  independently moving parts when transparent boundaries, source layers, or
+  reliable automatic image analysis make the separation convincing and useful.
+  Preserve the original artwork; never invent movable limbs or ask the user to
+  mark shapes as a prerequisite. If a necessary visual distinction cannot be
+  inferred, use whole-image motion and explain the limitation.
+- Use `mascot-motion.js` when it is present and fits the target page. For a
+  standalone HTML deliverable or a simple effect, prefer a small self-contained
+  CSS/JavaScript implementation over adding dependencies or making the user
+  assemble a separate runtime bundle.
+- Implement the requested result in the project, not just a prompt, scene JSON,
+  or implementation instructions. Make sure the image path resolves and the
+  HTML can be opened or run using the project's existing workflow.
+- Preview the actual target page and image at its intended size. Verify that
+  the animation visibly changes over time, looping motion returns cleanly to
+  its initial pose (or a one-shot action settles and stops), controls work,
+  reduced-motion preferences are respected, and the browser console has no
+  relevant errors. Report what was changed and how it was checked.
+
 ## Artwork and rigging
 
 - Inspect the supplied artwork before choosing a motion or rig.

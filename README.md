@@ -5,10 +5,11 @@ alongside a gallery of loading indicator experiments.
 
 ## Mascot Motion Toolkit
 
-Upload a single image for whole-character movement or transparent image parts
-for articulated gestures. Preview motion in 2D and CSS 3D, set joint pivots,
-then copy an animation brief for your coding agent or download a starter bundle
-containing the image parts and scene configuration.
+Attach an image directly to your coding agent and describe the animation you
+want. The agent should inspect the artwork and project, then implement and test
+the result in the relevant HTML page (or create one when needed); manual image
+splitting and pivot marking are not required. The Studio upload is optional,
+for previewing motions or exporting reusable scene assets.
 
 - [Open Mascot Motion Studio](mascot-motion-studio.html)
 - [Read the coding-agent workflow](AGENTS.md)
